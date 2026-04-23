@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* One-page invoice: fills viewport; print matches US Letter height */
+.invoice-print-root {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.invoice-page-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.invoice-page-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.invoice-page-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(0.5rem, 2vh, 1.5rem);
+  min-height: 0;
+  padding-top: clamp(0.15rem, 0.5vh, 0.4rem);
+  padding-bottom: clamp(0.15rem, 0.5vh, 0.4rem);
+}
+
+/* Print / Save as PDF — same engine as the screen; no canvas snapshot drift */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+
+  @page {
+    size: letter;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  body {
+    display: block !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Full-bleed on paper / Save as PDF (some physical printers may still clip) */
+  .invoice-outer {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .invoice-print-root {
+    width: 100% !important;
+    min-height: 11in !important;
+    height: 11in !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .invoice-page-shell {
+    min-height: 11in !important;
+    height: 11in !important;
+  }
+
+  .invoice-page-card {
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+  }
+
+  .invoice-print-root,
+  .invoice-print-root * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
