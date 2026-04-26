@@ -1,18 +1,36 @@
 "use client";
 
-import { useCallback } from "react";
-import { buildInvoicePdfFilename } from "./invoicePdfFilename";
+import { useCallback, useMemo } from "react";
+import {
+  buildFixedFeeInvoicePdfFilename,
+  buildInvoicePdfFilename,
+} from "./invoicePdfFilename";
+
+function getBuildPdfFilename(kind: "lease" | "fixed-fee" | undefined) {
+  if (kind === "fixed-fee") return buildFixedFeeInvoicePdfFilename;
+  return buildInvoicePdfFilename;
+}
 
 export function InvoicePdfFrame({
   id,
   children,
+  /** If omitted, uses lease / commission filename pattern. */
+  pdfFilenameStyle,
+  printHint,
 }: {
   id: string;
   children: React.ReactNode;
+  pdfFilenameStyle?: "lease" | "fixed-fee";
+  printHint?: string;
 }) {
+  const buildPdfFilename = useMemo(
+    () => getBuildPdfFilename(pdfFilenameStyle),
+    [pdfFilenameStyle]
+  );
+
   const handlePrint = useCallback(() => {
     const prevTitle = document.title;
-    const filename = buildInvoicePdfFilename(id);
+    const filename = buildPdfFilename(id);
     document.title = filename.replace(/\.pdf$/i, "");
 
     const restore = () => {
@@ -24,7 +42,7 @@ export function InvoicePdfFrame({
     window.addEventListener("afterprint", restore);
 
     window.print();
-  }, [id]);
+  }, [buildPdfFilename, id]);
 
   return (
     <div>
@@ -43,7 +61,7 @@ export function InvoicePdfFrame({
         <span style={{ fontSize: 12, color: "#5a5a52" }}>
           Suggested filename:{" "}
           <code style={{ fontSize: 11, color: "#245535" }}>
-            {buildInvoicePdfFilename(id)}
+            {buildPdfFilename(id)}
           </code>
         </span>
         <button
@@ -75,10 +93,14 @@ export function InvoicePdfFrame({
           lineHeight: 1.5,
         }}
       >
-        Your browser will open the print dialog—set the destination to{" "}
-        <strong>Save as PDF</strong> (or “Print to PDF”). The file matches this
-        preview, not a screenshot. Margins are set to none so the design is
-        full-width on screen and in the PDF.
+        {printHint ?? (
+          <>
+            Your browser will open the print dialog—set the destination to{" "}
+            <strong>Save as PDF</strong> (or “Print to PDF”). The file matches
+            this preview, not a screenshot. Margins are set to none so the
+            design is full-width on screen and in the PDF.
+          </>
+        )}
       </p>
       <div
         className="invoice-print-root"

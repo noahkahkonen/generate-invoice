@@ -9,3 +9,9 @@ export function buildInvoicePdfFilename(id: string): string {
   const date = new Date().toISOString().slice(0, 10);
   return `BCRE-Invoice-${sanitizeInvoiceFilenamePart(id)}-${date}.pdf`;
 }
+
+/** Fixed-fee / BPO and similar one-line invoices */
+export function buildFixedFeeInvoicePdfFilename(id: string): string {
+  const date = new Date().toISOString().slice(0, 10);
+  return `BCRE-FixedFee-${sanitizeInvoiceFilenamePart(id)}-${date}.pdf`;
+}

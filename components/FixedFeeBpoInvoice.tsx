@@ -1,7 +1,44 @@
 import Image from "next/image";
 import { blockPad, bodyLine, bodySize, padH, padV } from "./invoiceTokens";
 
-export function Invoice({ id }: { id: string }) {
+export type FixedFeeBpoInvoiceProps = {
+  id: string;
+  amountDisplay: string;
+  due: string;
+  /** Deal or engagement name (shown under "Billed for") */
+  dealName: string;
+  /** Optional short note under the deal name */
+  description?: string | null;
+  billedToName: string;
+  billedToLine2: string;
+  /** Phone or other line before email */
+  billedToLine3: string;
+  billedToEmail: string;
+  agentName: string;
+  agentTitle: string;
+  /** e.g. "614-559-3350 Ext. 117" */
+  agentPhoneLine: string;
+  agentEmail: string;
+};
+
+/**
+ * Flat-fee line item: Billed to (with email) / Agent, deal name + amount due, brand shell.
+ */
+export function FixedFeeBpoInvoice({
+  id,
+  amountDisplay,
+  due,
+  dealName,
+  description,
+  billedToName,
+  billedToLine2,
+  billedToLine3,
+  billedToEmail,
+  agentName,
+  agentTitle,
+  agentPhoneLine,
+  agentEmail,
+}: FixedFeeBpoInvoiceProps) {
   return (
     <div
       className="invoice-outer invoice-page-shell"
@@ -31,6 +68,7 @@ export function Invoice({ id }: { id: string }) {
             alignItems: "center",
             padding: `${padV} ${padH}`,
             flexShrink: 0,
+            gap: 12,
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -69,7 +107,7 @@ export function Invoice({ id }: { id: string }) {
             >
               #{id}
               <br />
-              Due: 4/19/26
+              Due: {due}
             </div>
           </div>
         </div>
@@ -129,13 +167,13 @@ export function Invoice({ id }: { id: string }) {
                   color: "#333",
                 }}
               >
-                Valerie Tivin
+                {billedToName}
                 <br />
-                Best Corporate Real Estate
+                {billedToLine2}
                 <br />
-                614-559-3350
+                {billedToLine3}
                 <br />
-                info@bestcorporaterealestate.com
+                {billedToEmail}
               </div>
             </div>
 
@@ -165,13 +203,13 @@ export function Invoice({ id }: { id: string }) {
                   color: "#333",
                 }}
               >
-                <strong>Noah Kahkonen</strong>
+                <strong>{agentName}</strong>
                 <br />
-                Senior Advisor
+                {agentTitle}
                 <br />
-                614-559-3350 Ext. 117
+                {agentPhoneLine}
                 <br />
-                nkahkonen@bestcorporaterealestate.com
+                {agentEmail}
               </div>
             </div>
           </div>
@@ -181,8 +219,9 @@ export function Invoice({ id }: { id: string }) {
               display: "flex",
               padding: `${blockPad} ${padH}`,
               gap: "clamp(20px, 2.2vw, 40px)",
-              alignItems: "flex-start",
+              alignItems: "center",
               borderBottom: "1px solid #e0e0d8",
+              flex: 1,
             }}
           >
             <div
@@ -202,65 +241,50 @@ export function Invoice({ id }: { id: string }) {
                   marginBottom: "clamp(10px, 1.1vh, 16px)",
                 }}
               >
-                Billed For
-              </div>
-
-              <div
-                style={{
-                  fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: "#245535",
-                  textTransform: "uppercase",
-                  marginBottom: "clamp(3px, 0.4vh, 6px)",
-                }}
-              >
-                Landlord Representation
+                Billed for
               </div>
               <div
                 style={{
-                  fontSize: bodySize,
-                  color: "#444",
+                  fontSize: "clamp(14px, 1.1vh + 0.5rem, 18px)",
+                  color: "#222",
                   lineHeight: bodyLine,
+                  fontWeight: 600,
                 }}
               >
-                2631 Morse Road Columbus, OH 43219
-                <br />
-                Unit: Suite C
-                <br />
-                Square Footage: 2,750
-                <br />
-                Acreage: N/A
+                {dealName}
               </div>
-
-              <div
-                style={{
-                  fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: "#245535",
-                  textTransform: "uppercase",
-                  marginBottom: "clamp(3px, 0.4vh, 6px)",
-                  marginTop: "clamp(10px, 1.2vh, 18px)",
-                }}
-              >
-                Tenant
-              </div>
-              <div
-                style={{
-                  fontSize: bodySize,
-                  color: "#444",
-                  lineHeight: bodyLine,
-                }}
-              >
-                <strong>Chubby Cheeks Daycare, Inc</strong>
-                <br />
-                Contact: Sahir Safi
-                <br />
-                614-559-3350
-                <br />
-                info@bestcorporaterealestate.com
-              </div>
+              {description && description.trim() ? (
+                <div
+                  style={{
+                    marginTop: "clamp(8px, 0.9vh, 12px)",
+                    paddingTop: "clamp(6px, 0.6vh, 10px)",
+                    borderTop: "1px solid #e8e8e0",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "clamp(10px, 0.65vh + 0.35rem, 11px)",
+                      fontWeight: 800,
+                      color: "#245535",
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Description
+                  </div>
+                  <div
+                    style={{
+                      fontSize: bodySize,
+                      color: "#555",
+                      lineHeight: 1.55,
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {description.trim()}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div
@@ -276,7 +300,6 @@ export function Invoice({ id }: { id: string }) {
                 style={{
                   background: "#245535",
                   borderRadius: 4,
-                  marginBottom: "clamp(10px, 1.1vh, 20px)",
                   display: "table",
                   width: "100%",
                   minHeight: "clamp(96px, 10vh, 140px)",
@@ -302,7 +325,7 @@ export function Invoice({ id }: { id: string }) {
                       lineHeight: 1.2,
                     }}
                   >
-                    Amount Due
+                    Amount due
                   </div>
                   <div
                     style={{
@@ -313,56 +336,10 @@ export function Invoice({ id }: { id: string }) {
                       lineHeight: 1.1,
                     }}
                   >
-                    $2,560.23
+                    {amountDisplay}
                   </div>
                 </div>
               </div>
-
-              <table
-                style={{
-                  width: "100%",
-                  maxWidth: "100%",
-                  borderCollapse: "collapse",
-                  tableLayout: "fixed",
-                }}
-              >
-                <tbody>
-                  {[
-                    ["Total", "$157,240.16"],
-                    ["Rate", "6%"],
-                    ["Lease Type", "MG"],
-                    ["Term", "5 Years, 2 Months"],
-                    ["Rent Commencement", "MM/DD/YY"],
-                  ].map(([label, value]) => (
-                    <tr key={label}>
-                      <td
-                        style={{
-                          fontSize: bodySize,
-                          padding: "clamp(5px, 0.6vh, 9px) clamp(0px, 0.3vw, 4px) clamp(5px, 0.6vh, 9px) 0",
-                          color: "#444",
-                          borderBottom: "1px solid #f0f0e8",
-                          width: "52%",
-                        }}
-                      >
-                        {label}
-                      </td>
-                      <td
-                        style={{
-                          fontSize: bodySize,
-                          padding: "clamp(5px, 0.6vh, 9px) 0",
-                          color: "#222",
-                          textAlign: "right",
-                          fontWeight: 600,
-                          borderBottom: "1px solid #f0f0e8",
-                          width: "48%",
-                        }}
-                      >
-                        {value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
 
@@ -383,7 +360,7 @@ export function Invoice({ id }: { id: string }) {
                 marginBottom: "clamp(10px, 1.1vh, 20px)",
               }}
             >
-              Payment Options
+              Payment options
             </div>
 
             <div
@@ -428,7 +405,7 @@ export function Invoice({ id }: { id: string }) {
                     textTransform: "uppercase",
                   }}
                 >
-                  Pay Now ↗
+                  Pay now ↗
                 </a>
 
                 <div
