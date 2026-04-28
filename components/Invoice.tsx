@@ -1,7 +1,71 @@
 import Image from "next/image";
 import { blockPad, bodyLine, bodySize, padH, padV } from "./invoiceTokens";
 
-export function Invoice({ id }: { id: string }) {
+export type InvoiceProps = {
+  id: string;
+  due: string;
+  amountDisplay: string;
+
+  billedToName: string;
+  billedToLine2: string;
+  billedToLine3: string;
+  billedToEmail: string;
+
+  agentName: string;
+  agentTitle: string;
+  agentPhoneLine: string;
+  agentEmail: string;
+
+  representationType: string;
+  propertyAddress: string;
+  unit: string;
+  squareFootage: string;
+  acreage: string;
+
+  tenantName: string;
+  tenantContact: string;
+  tenantPhone: string;
+  tenantEmail: string;
+
+  totalDeal: string;
+  rate: string;
+  leaseType: string;
+  term: string;
+  rentCommencement: string;
+
+  payUrl?: string;
+  qrUrl?: string;
+};
+
+export function Invoice({
+  id,
+  due,
+  amountDisplay,
+  billedToName,
+  billedToLine2,
+  billedToLine3,
+  billedToEmail,
+  agentName,
+  agentTitle,
+  agentPhoneLine,
+  agentEmail,
+  representationType,
+  propertyAddress,
+  unit,
+  squareFootage,
+  acreage,
+  tenantName,
+  tenantContact,
+  tenantPhone,
+  tenantEmail,
+  totalDeal,
+  rate,
+  leaseType,
+  term,
+  rentCommencement,
+  payUrl,
+  qrUrl,
+}: InvoiceProps) {
   return (
     <div
       className="invoice-outer invoice-page-shell"
@@ -47,7 +111,6 @@ export function Invoice({ id }: { id: string }) {
               }}
             />
           </div>
-
           <div style={{ textAlign: "right", color: "#fff" }}>
             <div
               style={{
@@ -69,7 +132,7 @@ export function Invoice({ id }: { id: string }) {
             >
               #{id}
               <br />
-              Due: 4/19/26
+              Due: {due}
             </div>
           </div>
         </div>
@@ -129,16 +192,15 @@ export function Invoice({ id }: { id: string }) {
                   color: "#333",
                 }}
               >
-                Valerie Tivin
+                {billedToName}
                 <br />
-                Best Corporate Real Estate
+                {billedToLine2}
                 <br />
-                614-559-3350
+                {billedToLine3}
                 <br />
-                info@bestcorporaterealestate.com
+                {billedToEmail}
               </div>
             </div>
-
             <div
               style={{
                 flex: 1,
@@ -165,13 +227,13 @@ export function Invoice({ id }: { id: string }) {
                   color: "#333",
                 }}
               >
-                <strong>Noah Kahkonen</strong>
+                <strong>{agentName}</strong>
                 <br />
-                Senior Advisor
+                {agentTitle}
                 <br />
-                614-559-3350 Ext. 117
+                {agentPhoneLine}
                 <br />
-                nkahkonen@bestcorporaterealestate.com
+                {agentEmail}
               </div>
             </div>
           </div>
@@ -204,7 +266,6 @@ export function Invoice({ id }: { id: string }) {
               >
                 Billed For
               </div>
-
               <div
                 style={{
                   fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
@@ -215,54 +276,81 @@ export function Invoice({ id }: { id: string }) {
                   marginBottom: "clamp(3px, 0.4vh, 6px)",
                 }}
               >
-                Landlord Representation
+                {representationType}
               </div>
               <div
                 style={{
                   fontSize: bodySize,
                   color: "#444",
                   lineHeight: bodyLine,
+                  whiteSpace: "pre-line",
                 }}
               >
-                2631 Morse Road Columbus, OH 43219
-                <br />
-                Unit: Suite C
-                <br />
-                Square Footage: 2,750
-                <br />
-                Acreage: N/A
+                {propertyAddress}
+                {unit ? (
+                  <>
+                    <br />
+                    Unit: {unit}
+                  </>
+                ) : null}
+                {squareFootage ? (
+                  <>
+                    <br />
+                    Square Footage: {squareFootage}
+                  </>
+                ) : null}
+                {acreage ? (
+                  <>
+                    <br />
+                    Acreage: {acreage}
+                  </>
+                ) : null}
               </div>
-
-              <div
-                style={{
-                  fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: "#245535",
-                  textTransform: "uppercase",
-                  marginBottom: "clamp(3px, 0.4vh, 6px)",
-                  marginTop: "clamp(10px, 1.2vh, 18px)",
-                }}
-              >
-                Tenant
-              </div>
-              <div
-                style={{
-                  fontSize: bodySize,
-                  color: "#444",
-                  lineHeight: bodyLine,
-                }}
-              >
-                <strong>Chubby Cheeks Daycare, Inc</strong>
-                <br />
-                Contact: Sahir Safi
-                <br />
-                614-559-3350
-                <br />
-                info@bestcorporaterealestate.com
-              </div>
+              {(tenantName || tenantContact || tenantPhone || tenantEmail) && (
+                <>
+                  <div
+                    style={{
+                      fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: "#245535",
+                      textTransform: "uppercase",
+                      marginBottom: "clamp(3px, 0.4vh, 6px)",
+                      marginTop: "clamp(10px, 1.2vh, 18px)",
+                    }}
+                  >
+                    Tenant
+                  </div>
+                  <div
+                    style={{
+                      fontSize: bodySize,
+                      color: "#444",
+                      lineHeight: bodyLine,
+                    }}
+                  >
+                    {tenantName ? <strong>{tenantName}</strong> : null}
+                    {tenantContact ? (
+                      <>
+                        <br />
+                        Contact: {tenantContact}
+                      </>
+                    ) : null}
+                    {tenantPhone ? (
+                      <>
+                        <br />
+                        {tenantPhone}
+                      </>
+                    ) : null}
+                    {tenantEmail ? (
+                      <>
+                        <br />
+                        {tenantEmail}
+                      </>
+                    ) : null}
+                  </div>
+                </>
+              )}
             </div>
-
             <div
               style={{
                 flex: "0 0 42%",
@@ -313,11 +401,10 @@ export function Invoice({ id }: { id: string }) {
                       lineHeight: 1.1,
                     }}
                   >
-                    $2,560.23
+                    {amountDisplay}
                   </div>
                 </div>
               </div>
-
               <table
                 style={{
                   width: "100%",
@@ -328,17 +415,18 @@ export function Invoice({ id }: { id: string }) {
               >
                 <tbody>
                   {[
-                    ["Total", "$157,240.16"],
-                    ["Rate", "6%"],
-                    ["Lease Type", "MG"],
-                    ["Term", "5 Years, 2 Months"],
-                    ["Rent Commencement", "MM/DD/YY"],
+                    ["Total", totalDeal],
+                    ["Rate", rate],
+                    ["Lease Type", leaseType],
+                    ["Term", term],
+                    ["Rent Commencement", rentCommencement],
                   ].map(([label, value]) => (
                     <tr key={label}>
                       <td
                         style={{
                           fontSize: bodySize,
-                          padding: "clamp(5px, 0.6vh, 9px) clamp(0px, 0.3vw, 4px) clamp(5px, 0.6vh, 9px) 0",
+                          padding:
+                            "clamp(5px, 0.6vh, 9px) clamp(0px, 0.3vw, 4px) clamp(5px, 0.6vh, 9px) 0",
                           color: "#444",
                           borderBottom: "1px solid #f0f0e8",
                           width: "52%",
@@ -385,7 +473,6 @@ export function Invoice({ id }: { id: string }) {
             >
               Payment Options
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -393,28 +480,46 @@ export function Invoice({ id }: { id: string }) {
                 alignItems: "flex-start",
               }}
             >
-              <div
-                style={{
-                  width: "clamp(72px, 8vh, 110px)",
-                  height: "clamp(72px, 8vh, 110px)",
-                  border: "2px solid #245535",
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#fff",
-                  color: "#245535",
-                  fontSize: "clamp(9px, 0.75vh + 0.25rem, 11px)",
-                  textAlign: "center",
-                  flexShrink: 0,
-                }}
-              >
-                QR CODE
-              </div>
-
+              {qrUrl ? (
+                <Image
+                  src={qrUrl}
+                  alt="Pay invoice QR code"
+                  width={110}
+                  height={110}
+                  unoptimized
+                  style={{
+                    width: "clamp(72px, 8vh, 110px)",
+                    height: "clamp(72px, 8vh, 110px)",
+                    border: "2px solid #245535",
+                    borderRadius: 4,
+                    background: "#fff",
+                    objectFit: "contain",
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "clamp(72px, 8vh, 110px)",
+                    height: "clamp(72px, 8vh, 110px)",
+                    border: "2px solid #245535",
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#fff",
+                    color: "#245535",
+                    fontSize: "clamp(9px, 0.75vh + 0.25rem, 11px)",
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  QR CODE
+                </div>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <a
-                  href="#"
+                  href={payUrl && payUrl.length > 0 ? payUrl : "#"}
                   style={{
                     display: "inline-block",
                     background: "#245535",
@@ -422,7 +527,8 @@ export function Invoice({ id }: { id: string }) {
                     fontSize: "clamp(11px, 0.85vh + 0.35rem, 13px)",
                     fontWeight: 700,
                     letterSpacing: 0.5,
-                    padding: "clamp(6px, 0.6vh, 9px) clamp(14px, 1.4vw, 20px)",
+                    padding:
+                      "clamp(6px, 0.6vh, 9px) clamp(14px, 1.4vw, 20px)",
                     borderRadius: 3,
                     textDecoration: "none",
                     textTransform: "uppercase",
@@ -430,7 +536,6 @@ export function Invoice({ id }: { id: string }) {
                 >
                   Pay Now ↗
                 </a>
-
                 <div
                   style={{
                     marginTop: "clamp(8px, 0.9vh, 14px)",
