@@ -5,25 +5,20 @@ export type FixedFeeBpoInvoiceProps = {
   id: string;
   amountDisplay: string;
   due: string;
-  /** Deal or engagement name (shown under "Billed for") */
   dealName: string;
-  /** Optional short note under the deal name */
   description?: string | null;
   billedToName: string;
   billedToLine2: string;
-  /** Phone or other line before email */
   billedToLine3: string;
   billedToEmail: string;
   agentName: string;
   agentTitle: string;
-  /** e.g. "614-559-3350 Ext. 117" */
   agentPhoneLine: string;
   agentEmail: string;
+  payUrl?: string;
+  qrUrl?: string;
 };
 
-/**
- * Flat-fee line item: Billed to (with email) / Agent, deal name + amount due, brand shell.
- */
 export function FixedFeeBpoInvoice({
   id,
   amountDisplay,
@@ -38,6 +33,8 @@ export function FixedFeeBpoInvoice({
   agentTitle,
   agentPhoneLine,
   agentEmail,
+  payUrl,
+  qrUrl,
 }: FixedFeeBpoInvoiceProps) {
   return (
     <div
@@ -85,7 +82,6 @@ export function FixedFeeBpoInvoice({
               }}
             />
           </div>
-
           <div style={{ textAlign: "right", color: "#fff" }}>
             <div
               style={{
@@ -176,7 +172,6 @@ export function FixedFeeBpoInvoice({
                 {billedToEmail}
               </div>
             </div>
-
             <div
               style={{
                 flex: 1,
@@ -286,7 +281,6 @@ export function FixedFeeBpoInvoice({
                 </div>
               ) : null}
             </div>
-
             <div
               style={{
                 flex: "0 0 42%",
@@ -362,7 +356,6 @@ export function FixedFeeBpoInvoice({
             >
               Payment options
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -370,28 +363,46 @@ export function FixedFeeBpoInvoice({
                 alignItems: "flex-start",
               }}
             >
-              <div
-                style={{
-                  width: "clamp(72px, 8vh, 110px)",
-                  height: "clamp(72px, 8vh, 110px)",
-                  border: "2px solid #245535",
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#fff",
-                  color: "#245535",
-                  fontSize: "clamp(9px, 0.75vh + 0.25rem, 11px)",
-                  textAlign: "center",
-                  flexShrink: 0,
-                }}
-              >
-                QR CODE
-              </div>
-
+              {qrUrl ? (
+                <Image
+                  src={qrUrl}
+                  alt="Pay invoice QR code"
+                  width={110}
+                  height={110}
+                  unoptimized
+                  style={{
+                    width: "clamp(72px, 8vh, 110px)",
+                    height: "clamp(72px, 8vh, 110px)",
+                    border: "2px solid #245535",
+                    borderRadius: 4,
+                    background: "#fff",
+                    objectFit: "contain",
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "clamp(72px, 8vh, 110px)",
+                    height: "clamp(72px, 8vh, 110px)",
+                    border: "2px solid #245535",
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#fff",
+                    color: "#245535",
+                    fontSize: "clamp(9px, 0.75vh + 0.25rem, 11px)",
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  QR CODE
+                </div>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <a
-                  href="#"
+                  href={payUrl && payUrl.length > 0 ? payUrl : "#"}
                   style={{
                     display: "inline-block",
                     background: "#245535",
@@ -399,7 +410,8 @@ export function FixedFeeBpoInvoice({
                     fontSize: "clamp(11px, 0.85vh + 0.35rem, 13px)",
                     fontWeight: 700,
                     letterSpacing: 0.5,
-                    padding: "clamp(6px, 0.6vh, 9px) clamp(14px, 1.4vw, 20px)",
+                    padding:
+                      "clamp(6px, 0.6vh, 9px) clamp(14px, 1.4vw, 20px)",
                     borderRadius: 3,
                     textDecoration: "none",
                     textTransform: "uppercase",
@@ -407,7 +419,6 @@ export function FixedFeeBpoInvoice({
                 >
                   Pay now ↗
                 </a>
-
                 <div
                   style={{
                     marginTop: "clamp(8px, 0.9vh, 14px)",
