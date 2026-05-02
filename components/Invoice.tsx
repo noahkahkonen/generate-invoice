@@ -289,7 +289,7 @@ export function Invoice({
                     letterSpacing: 1,
                     color: "#245535",
                     textTransform: "uppercase",
-                    marginBottom: "clamp(2px, 0.3vh, 4px)",
+                    marginBottom: "clamp(6px, 0.7vh, 10px)",
                   }}
                 >
                   {representationType}
@@ -299,7 +299,7 @@ export function Invoice({
                 style={{
                   fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
                   color: "#444",
-                  lineHeight: 1.45,
+                  lineHeight: 1.8,
                   whiteSpace: "pre-line",
                 }}
               >
@@ -318,8 +318,8 @@ export function Invoice({
                   letterSpacing: 1,
                   color: "#245535",
                   textTransform: "uppercase",
-                  marginBottom: "clamp(2px, 0.3vh, 4px)",
-                  marginTop: "clamp(6px, 0.7vh, 10px)",
+                  marginBottom: "clamp(6px, 0.7vh, 10px)",
+                  marginTop: "clamp(14px, 1.6vh, 22px)",
                 }}
               >
                 Tenant
@@ -328,7 +328,7 @@ export function Invoice({
                 style={{
                   fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
                   color: "#444",
-                  lineHeight: 1.45,
+                  lineHeight: 1.8,
                 }}
               >
                 <strong>{tenantName || "Not provided"}</strong>

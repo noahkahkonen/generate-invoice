@@ -229,18 +229,19 @@ function formatPropertyAddress(
   state: string | null | undefined,
   zip: string | null | undefined
 ): string {
-  const lines: string[] = [];
-  if (line1 && line1.trim()) lines.push(line1.trim());
-
+  const street = line1?.trim() ?? "";
   const cityPart = city?.trim() ?? "";
   const statePart = state?.trim() ?? "";
   const zipPart = zip?.trim() ?? "";
-  let secondLine = cityPart;
-  if (statePart) secondLine += (secondLine ? ", " : "") + statePart;
-  if (zipPart) secondLine += (secondLine ? " " : "") + zipPart;
-  if (secondLine) lines.push(secondLine);
 
-  return lines.join("\n");
+  let cityStateZip = cityPart;
+  if (statePart) cityStateZip += (cityStateZip ? ", " : "") + statePart;
+  if (zipPart) cityStateZip += (cityStateZip ? " " : "") + zipPart;
+
+  const parts: string[] = [];
+  if (street) parts.push(street);
+  if (cityStateZip) parts.push(cityStateZip);
+  return parts.join(", ");
 }
 
 function resolveQrUrl(
