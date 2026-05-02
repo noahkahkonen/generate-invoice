@@ -16,20 +16,34 @@ export type CommissionBillingRecord = {
   QR_Code_URL__c?: string | null;
   Deal__r?: {
     Name?: string | null;
+    TTL_Core__Address_Line_1__c?: string | null;
+    TTL_Core__City__c?: string | null;
+    TTL_Core__State__c?: string | null;
+    TTL_Core__Zip_Code__c?: string | null;
+    TTL_Core__Space_Unit_Name__c?: string | null;
+    Leased_Space_Amount__c?: number | null;
+    TTL_Core__Lease_Structure__c?: string | null;
+    TTL_Core__Lease_Term_Months__c?: number | null;
+    TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
+    TTL_Core__Lease_Commencement__c?: string | null;
+    Rent_Commencement_Date_c__c?: string | null;
+    TTL_Core__Landlord_Company_Name__c?: string | null;
+    TTL_Core__Landlord_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
+    TTL_Core__Tenant_Company_Name__c?: string | null;
+    TTL_Core__Tenant_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
     TTL_Core__Client_Company__r?: { Name?: string | null } | null;
     TTL_Core__Client_Contact__r?: {
       Name?: string | null;
       Email?: string | null;
     } | null;
-    Agent_Contact__r?: {
-      Name?: string | null;
-      Email?: string | null;
-      Phone?: string | null;
-    } | null;
-    TTL_Core__Lease_Structure__c?: string | null;
-    TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
-    TTL_Core__Lease_Commencement__c?: string | null;
-    Rent_Commencement_Date_c__c?: string | null;
   } | null;
 };
 
@@ -42,16 +56,28 @@ SELECT
   Invoice_Description__c, Bill_To_Email__c, Client_Email__c,
   Payment_URL__c, QR_Code_URL__c,
   Deal__r.Name,
-  Deal__r.TTL_Core__Client_Company__r.Name,
-  Deal__r.TTL_Core__Client_Contact__r.Name,
-  Deal__r.TTL_Core__Client_Contact__r.Email,
-  Deal__r.Agent_Contact__r.Name,
-  Deal__r.Agent_Contact__r.Email,
-  Deal__r.Agent_Contact__r.Phone,
+  Deal__r.TTL_Core__Address_Line_1__c,
+  Deal__r.TTL_Core__City__c,
+  Deal__r.TTL_Core__State__c,
+  Deal__r.TTL_Core__Zip_Code__c,
+  Deal__r.TTL_Core__Space_Unit_Name__c,
+  Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
+  Deal__r.TTL_Core__Lease_Term_Months__c,
   Deal__r.TTL_Core__Client_Expectations_Term_Months__c,
   Deal__r.TTL_Core__Lease_Commencement__c,
-  Deal__r.Rent_Commencement_Date_c__c
+  Deal__r.Rent_Commencement_Date_c__c,
+  Deal__r.TTL_Core__Landlord_Company_Name__c,
+  Deal__r.TTL_Core__Landlord_Contact__r.Name,
+  Deal__r.TTL_Core__Landlord_Contact__r.Email,
+  Deal__r.TTL_Core__Landlord_Contact__r.Phone,
+  Deal__r.TTL_Core__Tenant_Company_Name__c,
+  Deal__r.TTL_Core__Tenant_Contact__r.Name,
+  Deal__r.TTL_Core__Tenant_Contact__r.Email,
+  Deal__r.TTL_Core__Tenant_Contact__r.Phone,
+  Deal__r.TTL_Core__Client_Company__r.Name,
+  Deal__r.TTL_Core__Client_Contact__r.Name,
+  Deal__r.TTL_Core__Client_Contact__r.Email
 FROM Commission_Billing_Record__c
 WHERE Id = '{ID}'
 LIMIT 1
@@ -161,6 +187,31 @@ function formatPercent(n: number | null | undefined): string {
   return `${n}%`;
 }
 
+function formatNumber(n: number | null | undefined): string {
+  if (n == null || Number.isNaN(n)) return "";
+  return new Intl.NumberFormat("en-US").format(n);
+}
+
+function formatPropertyAddress(
+  line1: string | null | undefined,
+  city: string | null | undefined,
+  state: string | null | undefined,
+  zip: string | null | undefined
+): string {
+  const lines: string[] = [];
+  if (line1 && line1.trim()) lines.push(line1.trim());
+
+  const cityPart = city?.trim() ?? "";
+  const statePart = state?.trim() ?? "";
+  const zipPart = zip?.trim() ?? "";
+  let secondLine = cityPart;
+  if (statePart) secondLine += (secondLine ? ", " : "") + statePart;
+  if (zipPart) secondLine += (secondLine ? " " : "") + zipPart;
+  if (secondLine) lines.push(secondLine);
+
+  return lines.join("\n");
+}
+
 function resolveQrUrl(
   qrUrl: string | null | undefined,
   payUrl: string | null | undefined
@@ -215,15 +266,20 @@ export function mapRecordToLeaseInvoice(
   rec: CommissionBillingRecord
 ): LeaseInvoiceMapping {
   const deal = rec.Deal__r ?? null;
-  const company = deal?.TTL_Core__Client_Company__r?.Name ?? "";
-  const contactName = deal?.TTL_Core__Client_Contact__r?.Name ?? "";
-  const contactEmail = deal?.TTL_Core__Client_Contact__r?.Email ?? "";
+
+  const landlordCompany = deal?.TTL_Core__Landlord_Company_Name__c ?? "";
+  const landlordContact = deal?.TTL_Core__Landlord_Contact__r ?? null;
+
+  const tenantCompany = deal?.TTL_Core__Tenant_Company_Name__c ?? "";
+  const tenantContactObj = deal?.TTL_Core__Tenant_Contact__r ?? null;
 
   const rentCommencement =
     formatDate(deal?.Rent_Commencement_Date_c__c) ||
     formatDate(deal?.TTL_Core__Lease_Commencement__c);
 
-  const termMonths = deal?.TTL_Core__Client_Expectations_Term_Months__c;
+  const termMonths =
+    deal?.TTL_Core__Lease_Term_Months__c ??
+    deal?.TTL_Core__Client_Expectations_Term_Months__c;
   const term =
     termMonths == null || termMonths === "" ? "" : `${termMonths} months`;
 
@@ -231,25 +287,32 @@ export function mapRecordToLeaseInvoice(
     id: rec.Name ?? rec.Id,
     due: formatDate(rec.CreatedDate),
     amountDisplay: formatUsd(rec.Invoice_Amount__c),
-    billedToName: company || contactName,
-    billedToLine2:
-      company && contactName && company !== contactName ? contactName : "",
-    billedToLine3: "",
+    billedToName: landlordCompany,
+    billedToLine2: landlordContact?.Name ?? "",
+    billedToLine3: landlordContact?.Phone ?? "",
     billedToEmail:
-      rec.Bill_To_Email__c ?? rec.Client_Email__c ?? contactEmail ?? "",
+      rec.Bill_To_Email__c ??
+      landlordContact?.Email ??
+      rec.Client_Email__c ??
+      "",
     agentName: HARDCODED_AGENT.name,
     agentTitle: HARDCODED_AGENT.title,
     agentPhoneLine: HARDCODED_AGENT.phone,
     agentEmail: HARDCODED_AGENT.email,
     representationType: "",
-    propertyAddress: cleanDescription(rec.Invoice_Description__c),
-    unit: "",
-    squareFootage: "",
+    propertyAddress: formatPropertyAddress(
+      deal?.TTL_Core__Address_Line_1__c,
+      deal?.TTL_Core__City__c,
+      deal?.TTL_Core__State__c,
+      deal?.TTL_Core__Zip_Code__c
+    ),
+    unit: deal?.TTL_Core__Space_Unit_Name__c ?? "",
+    squareFootage: formatNumber(deal?.Leased_Space_Amount__c),
     acreage: "",
-    tenantName: "",
-    tenantContact: "",
-    tenantPhone: "",
-    tenantEmail: "",
+    tenantName: tenantCompany,
+    tenantContact: tenantContactObj?.Name ?? "",
+    tenantPhone: tenantContactObj?.Phone ?? "",
+    tenantEmail: tenantContactObj?.Email ?? "",
     totalDeal: formatUsd(rec.Invoice_Amount__c),
     rate: formatPercent(rec.Commission_Rate__c),
     leaseType: deal?.TTL_Core__Lease_Structure__c ?? "",
