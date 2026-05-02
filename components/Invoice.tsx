@@ -176,7 +176,7 @@ export function Invoice({
             }}
           >
             4608 Sawmill Road, Columbus, OH 43220 | 614-559-3350 |
-            nkahkonen@bestcorporaterealestate.com
+            info@bestcorporaterealestate.com
           </div>
         </div>
 
