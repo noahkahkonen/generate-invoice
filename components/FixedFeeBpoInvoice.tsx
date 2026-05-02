@@ -116,9 +116,9 @@ export function FixedFeeBpoInvoice({
               width={196}
               height={158}
               style={{
-                height: "clamp(50px, 5.2vh, 70px)",
+                height: "clamp(75px, 7.8vh, 105px)",
                 width: "auto",
-                maxWidth: "min(42vw, 280px)",
+                maxWidth: "min(63vw, 420px)",
                 objectFit: "contain",
               }}
             />
