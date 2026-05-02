@@ -32,10 +32,14 @@ export type CommissionBillingRecord = {
     TTL_Core__Space_Unit_Name__c?: string | null;
     TTL_Core__Unit__r?: {
       Name?: string | null;
+      TTL_Core__Suite__c?: string | null;
+      TTL_Core__Unit_Number__c?: string | null;
       TTL_Core__Rentable_SF__c?: number | null;
     } | null;
     Space_Unit__r?: {
       Name?: string | null;
+      TTL_Core__Suite__c?: string | null;
+      TTL_Core__Unit_Number__c?: string | null;
       TTL_Core__Rentable_SF__c?: number | null;
     } | null;
     Leased_Space_Amount__c?: number | null;
@@ -103,8 +107,12 @@ SELECT
   Deal__r.TTL_Core__Property__r.TTL_Core__Land_Size_Acres__c,
   Deal__r.TTL_Core__Space_Unit_Name__c,
   Deal__r.TTL_Core__Unit__r.Name,
+  Deal__r.TTL_Core__Unit__r.TTL_Core__Suite__c,
+  Deal__r.TTL_Core__Unit__r.TTL_Core__Unit_Number__c,
   Deal__r.TTL_Core__Unit__r.TTL_Core__Rentable_SF__c,
   Deal__r.Space_Unit__r.Name,
+  Deal__r.Space_Unit__r.TTL_Core__Suite__c,
+  Deal__r.Space_Unit__r.TTL_Core__Unit_Number__c,
   Deal__r.Space_Unit__r.TTL_Core__Rentable_SF__c,
   Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
@@ -287,6 +295,14 @@ function formatPropertyAddress(
   const statePart = state?.trim() ?? "";
   const zipPart = zip?.trim() ?? "";
 
+  // If the street/address field already contains the city or zip, treat it
+  // as a fully-formed address and don't append city/state/zip again.
+  const streetLower = street.toLowerCase();
+  const alreadyHasCityOrZip =
+    (cityPart && streetLower.includes(cityPart.toLowerCase())) ||
+    (zipPart && streetLower.includes(zipPart));
+  if (alreadyHasCityOrZip) return street;
+
   let cityStateZip = cityPart;
   if (statePart) cityStateZip += (cityStateZip ? ", " : "") + statePart;
   if (zipPart) cityStateZip += (cityStateZip ? " " : "") + zipPart;
@@ -414,9 +430,13 @@ export function mapRecordToLeaseInvoice(
         deal?.TTL_Core__Zip_Code__c
       ),
     unit:
+      deal?.TTL_Core__Unit__r?.TTL_Core__Suite__c ??
+      deal?.TTL_Core__Unit__r?.TTL_Core__Unit_Number__c ??
+      deal?.Space_Unit__r?.TTL_Core__Suite__c ??
+      deal?.Space_Unit__r?.TTL_Core__Unit_Number__c ??
+      deal?.TTL_Core__Space_Unit_Name__c ??
       deal?.TTL_Core__Unit__r?.Name ??
       deal?.Space_Unit__r?.Name ??
-      deal?.TTL_Core__Space_Unit_Name__c ??
       "",
     squareFootage: (() => {
       const sqft =
