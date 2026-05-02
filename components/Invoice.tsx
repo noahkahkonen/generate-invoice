@@ -276,7 +276,7 @@ export function Invoice({
                   color: "#245535",
                   letterSpacing: 1.5,
                   textTransform: "uppercase",
-                  marginBottom: "clamp(10px, 1.1vh, 16px)",
+                  marginBottom: "clamp(6px, 0.7vh, 10px)",
                 }}
               >
                 Billed For
@@ -284,12 +284,12 @@ export function Invoice({
               {isFilled(representationType) ? (
                 <div
                   style={{
-                    fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
+                    fontSize: "clamp(9px, 0.6vh + 0.3rem, 11px)",
                     fontWeight: 700,
                     letterSpacing: 1,
                     color: "#245535",
                     textTransform: "uppercase",
-                    marginBottom: "clamp(3px, 0.4vh, 6px)",
+                    marginBottom: "clamp(2px, 0.3vh, 4px)",
                   }}
                 >
                   {representationType}
@@ -297,9 +297,9 @@ export function Invoice({
               ) : null}
               <div
                 style={{
-                  fontSize: bodySize,
+                  fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
                   color: "#444",
-                  lineHeight: bodyLine,
+                  lineHeight: 1.45,
                   whiteSpace: "pre-line",
                 }}
               >
@@ -327,22 +327,22 @@ export function Invoice({
                 <>
                   <div
                     style={{
-                      fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
+                      fontSize: "clamp(9px, 0.6vh + 0.3rem, 11px)",
                       fontWeight: 700,
                       letterSpacing: 1,
                       color: "#245535",
                       textTransform: "uppercase",
-                      marginBottom: "clamp(3px, 0.4vh, 6px)",
-                      marginTop: "clamp(10px, 1.2vh, 18px)",
+                      marginBottom: "clamp(2px, 0.3vh, 4px)",
+                      marginTop: "clamp(6px, 0.7vh, 10px)",
                     }}
                   >
                     Tenant
                   </div>
                   <div
                     style={{
-                      fontSize: bodySize,
+                      fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
                       color: "#444",
-                      lineHeight: bodyLine,
+                      lineHeight: 1.45,
                     }}
                   >
                     {tenantName ? <strong>{tenantName}</strong> : null}

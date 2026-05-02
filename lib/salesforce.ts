@@ -29,6 +29,7 @@ export type CommissionBillingRecord = {
       TTL_Core__Postal_Zip_Code__c?: string | null;
     } | null;
     TTL_Core__Space_Unit_Name__c?: string | null;
+    TTL_Core__Unit__r?: { Name?: string | null } | null;
     Leased_Space_Amount__c?: number | null;
     TTL_Core__Lease_Structure__c?: string | null;
     TTL_Core__Lease_Term_Months__c?: number | null;
@@ -75,6 +76,7 @@ SELECT
   Deal__r.TTL_Core__Property__r.TTL_Core__State__c,
   Deal__r.TTL_Core__Property__r.TTL_Core__Postal_Zip_Code__c,
   Deal__r.TTL_Core__Space_Unit_Name__c,
+  Deal__r.TTL_Core__Unit__r.Name,
   Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
   Deal__r.TTL_Core__Lease_Term_Months__c,
@@ -334,7 +336,10 @@ export function mapRecordToLeaseInvoice(
         deal?.TTL_Core__State__c,
         deal?.TTL_Core__Zip_Code__c
       ),
-    unit: deal?.TTL_Core__Space_Unit_Name__c ?? "",
+    unit:
+      deal?.TTL_Core__Unit__r?.Name ??
+      deal?.TTL_Core__Space_Unit_Name__c ??
+      "",
     squareFootage: formatNumber(deal?.Leased_Space_Amount__c),
     acreage: "",
     tenantName: tenantCompany,
