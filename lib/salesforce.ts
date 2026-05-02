@@ -49,6 +49,7 @@ export type CommissionBillingRecord = {
     Lease_Years__c?: number | null;
     TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
     Total_Initial_Base_Rent__c?: number | null;
+    Total_Initial_Lease_Amount__c?: number | null;
     TTL_Core__Lease_Commencement__c?: string | null;
     Rent_Commencement_Date_c__c?: string | null;
     TTL_Core__Landlord_Company_Name__c?: string | null;
@@ -122,6 +123,7 @@ SELECT
   Deal__r.Lease_Years__c,
   Deal__r.TTL_Core__Client_Expectations_Term_Months__c,
   Deal__r.Total_Initial_Base_Rent__c,
+  Deal__r.Total_Initial_Lease_Amount__c,
   Deal__r.TTL_Core__Lease_Commencement__c,
   Deal__r.Rent_Commencement_Date_c__c,
   Deal__r.TTL_Core__Landlord_Company_Name__c,
@@ -454,7 +456,19 @@ export function mapRecordToLeaseInvoice(
     tenantContact: tenantContactObj?.Name ?? "",
     tenantPhone: tenantContactObj?.Phone ?? "",
     tenantEmail: tenantContactObj?.Email ?? "",
-    totalDeal: formatUsd(deal?.Total_Initial_Base_Rent__c),
+    totalDeal: (() => {
+      const fromField =
+        deal?.Total_Initial_Base_Rent__c ??
+        deal?.Total_Initial_Lease_Amount__c;
+      if (fromField) return formatUsd(fromField);
+      // Last-resort: derive total deal value from commission and rate.
+      const commission = rec.Invoice_Amount__c;
+      const rate = rec.Commission_Rate__c;
+      if (commission && rate) {
+        return formatUsd(commission / (rate / 100));
+      }
+      return "";
+    })(),
     rate: formatPercent(rec.Commission_Rate__c),
     leaseType: deal?.TTL_Core__Lease_Structure__c ?? "",
     term,
