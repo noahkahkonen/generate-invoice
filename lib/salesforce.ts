@@ -6,25 +6,15 @@ export type CommissionBillingRecord = {
   Id: string;
   Name?: string | null;
   CreatedDate?: string | null;
-  Billing_Status__c?: string | null;
   Billing_Type__c?: string | null;
-  Commission_Type__c?: string | null;
   Commission_Rate__c?: number | null;
-  Split_Percent__c?: number | null;
-  Flat_Fee_Amount__c?: number | null;
-  Base_Amount_Auto__c?: number | null;
   Invoice_Amount__c?: number | null;
-  Net_Commission__c?: number | null;
   Invoice_Description__c?: string | null;
   Bill_To_Email__c?: string | null;
   Client_Email__c?: string | null;
   Payment_URL__c?: string | null;
   QR_Code_URL__c?: string | null;
-  Paid_Date__c?: string | null;
-  Stripe_Amount__c?: number | null;
-  Stripe_Status__c?: string | null;
   Deal__r?: {
-    Id?: string | null;
     Name?: string | null;
     TTL_Core__Client_Company__r?: { Name?: string | null } | null;
     TTL_Core__Client_Contact__r?: {
@@ -36,40 +26,32 @@ export type CommissionBillingRecord = {
       Email?: string | null;
       Phone?: string | null;
     } | null;
-    Commis__c?: number | null;
     TTL_Core__Lease_Structure__c?: string | null;
     TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
-    TTL_Core__Asking_Monthly_Rent__c?: number | null;
     TTL_Core__Lease_Commencement__c?: string | null;
     Rent_Commencement_Date_c__c?: string | null;
-    Free_Rent_Months_c__c?: number | null;
   } | null;
 };
 
 const SOQL = `
 SELECT
   Id, Name, CreatedDate,
-  Billing_Status__c, Billing_Type__c,
-  Commission_Type__c, Commission_Rate__c, Split_Percent__c,
-  Flat_Fee_Amount__c, Base_Amount_Auto__c,
-  Invoice_Amount__c, Net_Commission__c,
+  Billing_Type__c,
+  Commission_Rate__c,
+  Invoice_Amount__c,
   Invoice_Description__c, Bill_To_Email__c, Client_Email__c,
-  Payment_URL__c, QR_Code_URL__c, Paid_Date__c,
-  Stripe_Amount__c, Stripe_Status__c,
-  Deal__r.Id, Deal__r.Name,
+  Payment_URL__c, QR_Code_URL__c,
+  Deal__r.Name,
   Deal__r.TTL_Core__Client_Company__r.Name,
   Deal__r.TTL_Core__Client_Contact__r.Name,
   Deal__r.TTL_Core__Client_Contact__r.Email,
   Deal__r.Agent_Contact__r.Name,
   Deal__r.Agent_Contact__r.Email,
   Deal__r.Agent_Contact__r.Phone,
-  Deal__r.Commis__c,
   Deal__r.TTL_Core__Lease_Structure__c,
   Deal__r.TTL_Core__Client_Expectations_Term_Months__c,
-  Deal__r.TTL_Core__Asking_Monthly_Rent__c,
   Deal__r.TTL_Core__Lease_Commencement__c,
-  Deal__r.Rent_Commencement_Date_c__c,
-  Deal__r.Free_Rent_Months_c__c
+  Deal__r.Rent_Commencement_Date_c__c
 FROM Commission_Billing_Record__c
 WHERE Id = '{ID}'
 LIMIT 1
