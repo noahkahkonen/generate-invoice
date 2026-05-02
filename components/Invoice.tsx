@@ -540,7 +540,7 @@ export function Invoice({
                   <br />
                   Mail to: 4608 Sawmill Road, Columbus, OH 43220
                   <br />
-                  Tax ID: <strong>XX-XXXXXXX</strong>
+                  Tax ID: <strong>31-1309032</strong>
                 </div>
               </div>
             </div>
