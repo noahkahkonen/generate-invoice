@@ -34,6 +34,8 @@ export type CommissionBillingRecord = {
     Leased_Space_Amount__c?: number | null;
     TTL_Core__Lease_Structure__c?: string | null;
     TTL_Core__Lease_Term_Months__c?: number | null;
+    TTL_Core__Lease_Term_Months_formula__c?: number | null;
+    Lease_Years__c?: number | null;
     TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
     TTL_Core__Lease_Commencement__c?: string | null;
     Rent_Commencement_Date_c__c?: string | null;
@@ -82,6 +84,8 @@ SELECT
   Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
   Deal__r.TTL_Core__Lease_Term_Months__c,
+  Deal__r.TTL_Core__Lease_Term_Months_formula__c,
+  Deal__r.Lease_Years__c,
   Deal__r.TTL_Core__Client_Expectations_Term_Months__c,
   Deal__r.TTL_Core__Lease_Commencement__c,
   Deal__r.Rent_Commencement_Date_c__c,
@@ -215,6 +219,21 @@ function formatNumber(n: number | null | undefined): string {
   return new Intl.NumberFormat("en-US").format(n);
 }
 
+function formatLeaseTerm(
+  months: number | string | null | undefined
+): string {
+  if (months == null || months === "") return "";
+  const m = typeof months === "number" ? months : Number(months);
+  if (!Number.isFinite(m) || m <= 0) return "";
+  const years = Math.floor(m / 12);
+  const remaining = Math.round(m - years * 12);
+  const yearsLabel = years === 1 ? "Year" : "Years";
+  const monthsLabel = remaining === 1 ? "Month" : "Months";
+  if (years === 0) return `${remaining} ${monthsLabel}`;
+  if (remaining === 0) return `${years} ${yearsLabel}`;
+  return `${years} ${yearsLabel}, ${remaining} ${monthsLabel}`;
+}
+
 function formatAcres(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return "";
   return new Intl.NumberFormat("en-US", {
@@ -310,10 +329,11 @@ export function mapRecordToLeaseInvoice(
     formatDate(deal?.TTL_Core__Lease_Commencement__c);
 
   const termMonths =
+    deal?.TTL_Core__Lease_Term_Months_formula__c ??
     deal?.TTL_Core__Lease_Term_Months__c ??
-    deal?.TTL_Core__Client_Expectations_Term_Months__c;
-  const term =
-    termMonths == null || termMonths === "" ? "" : `${termMonths} months`;
+    deal?.TTL_Core__Client_Expectations_Term_Months__c ??
+    (deal?.Lease_Years__c ? deal.Lease_Years__c * 12 : null);
+  const term = formatLeaseTerm(termMonths);
 
   return {
     id: rec.Name ?? rec.Id,
