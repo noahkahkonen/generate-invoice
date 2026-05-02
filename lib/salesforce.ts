@@ -189,6 +189,11 @@ function formatPercent(n: number | null | undefined): string {
   return `${n}%`;
 }
 
+function expandRepAbbreviation(value: string | null | undefined): string {
+  if (!value) return "";
+  return value.replace(/\bRep\b/gi, "Representation");
+}
+
 function formatNumber(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return "";
   return new Intl.NumberFormat("en-US").format(n);
@@ -301,7 +306,9 @@ export function mapRecordToLeaseInvoice(
     agentTitle: HARDCODED_AGENT.title,
     agentPhoneLine: HARDCODED_AGENT.phone,
     agentEmail: HARDCODED_AGENT.email,
-    representationType: deal?.TTL_Core__RecordType_Name__c ?? "",
+    representationType: expandRepAbbreviation(
+      deal?.TTL_Core__RecordType_Name__c
+    ),
     propertyAddress: formatPropertyAddress(
       deal?.TTL_Core__Address_Line_1__c,
       deal?.TTL_Core__City__c,
