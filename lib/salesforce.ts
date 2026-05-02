@@ -31,6 +31,7 @@ export type CommissionBillingRecord = {
     } | null;
     TTL_Core__Space_Unit_Name__c?: string | null;
     TTL_Core__Unit__r?: { Name?: string | null } | null;
+    Space_Unit__r?: { Name?: string | null } | null;
     Leased_Space_Amount__c?: number | null;
     TTL_Core__Lease_Structure__c?: string | null;
     TTL_Core__Lease_Term_Months__c?: number | null;
@@ -45,8 +46,23 @@ export type CommissionBillingRecord = {
       Email?: string | null;
       Phone?: string | null;
     } | null;
+    Landlord_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
     TTL_Core__Tenant_Company_Name__c?: string | null;
     TTL_Core__Tenant_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
+    Tenant_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
+    Agent_Contact__r?: {
       Name?: string | null;
       Email?: string | null;
       Phone?: string | null;
@@ -81,6 +97,7 @@ SELECT
   Deal__r.TTL_Core__Property__r.TTL_Core__Land_Size_Acres__c,
   Deal__r.TTL_Core__Space_Unit_Name__c,
   Deal__r.TTL_Core__Unit__r.Name,
+  Deal__r.Space_Unit__r.Name,
   Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
   Deal__r.TTL_Core__Lease_Term_Months__c,
@@ -93,10 +110,19 @@ SELECT
   Deal__r.TTL_Core__Landlord_Contact__r.Name,
   Deal__r.TTL_Core__Landlord_Contact__r.Email,
   Deal__r.TTL_Core__Landlord_Contact__r.Phone,
+  Deal__r.Landlord_Contact__r.Name,
+  Deal__r.Landlord_Contact__r.Email,
+  Deal__r.Landlord_Contact__r.Phone,
   Deal__r.TTL_Core__Tenant_Company_Name__c,
   Deal__r.TTL_Core__Tenant_Contact__r.Name,
   Deal__r.TTL_Core__Tenant_Contact__r.Email,
   Deal__r.TTL_Core__Tenant_Contact__r.Phone,
+  Deal__r.Tenant_Contact__r.Name,
+  Deal__r.Tenant_Contact__r.Email,
+  Deal__r.Tenant_Contact__r.Phone,
+  Deal__r.Agent_Contact__r.Name,
+  Deal__r.Agent_Contact__r.Email,
+  Deal__r.Agent_Contact__r.Phone,
   Deal__r.TTL_Core__Client_Company__r.Name,
   Deal__r.TTL_Core__Client_Contact__r.Name,
   Deal__r.TTL_Core__Client_Contact__r.Email
@@ -319,10 +345,22 @@ export function mapRecordToLeaseInvoice(
   const deal = rec.Deal__r ?? null;
 
   const landlordCompany = deal?.TTL_Core__Landlord_Company_Name__c ?? "";
-  const landlordContact = deal?.TTL_Core__Landlord_Contact__r ?? null;
+  const landlordContact =
+    deal?.TTL_Core__Landlord_Contact__r ?? deal?.Landlord_Contact__r ?? null;
 
   const tenantCompany = deal?.TTL_Core__Tenant_Company_Name__c ?? "";
-  const tenantContactObj = deal?.TTL_Core__Tenant_Contact__r ?? null;
+  const tenantContactObj =
+    deal?.TTL_Core__Tenant_Contact__r ?? deal?.Tenant_Contact__r ?? null;
+
+  const agentContact = deal?.Agent_Contact__r ?? null;
+
+  const recordTypeName = deal?.TTL_Core__RecordType_Name__c ?? "";
+  const isTenantRep = /tenant/i.test(recordTypeName);
+
+  // For tenant rep deals the user wants the BILLED TO contact to be the
+  // Agent_Contact (cooperating / listing agent on the deal). For landlord
+  // rep (and anything else) it stays the landlord contact.
+  const billedToContact = isTenantRep ? agentContact : landlordContact;
 
   const rentCommencement =
     formatDate(deal?.Rent_Commencement_Date_c__c) ||
@@ -340,11 +378,11 @@ export function mapRecordToLeaseInvoice(
     due: formatDate(rec.CreatedDate),
     amountDisplay: formatUsd(rec.Invoice_Amount__c),
     billedToName: landlordCompany,
-    billedToLine2: landlordContact?.Name ?? "",
-    billedToLine3: landlordContact?.Phone ?? "",
+    billedToLine2: billedToContact?.Name ?? "",
+    billedToLine3: billedToContact?.Phone ?? "",
     billedToEmail:
       rec.Bill_To_Email__c ??
-      landlordContact?.Email ??
+      billedToContact?.Email ??
       rec.Client_Email__c ??
       "",
     agentName: HARDCODED_AGENT.name,
@@ -369,6 +407,7 @@ export function mapRecordToLeaseInvoice(
       ),
     unit:
       deal?.TTL_Core__Unit__r?.Name ??
+      deal?.Space_Unit__r?.Name ??
       deal?.TTL_Core__Space_Unit_Name__c ??
       "",
     squareFootage: deal?.Leased_Space_Amount__c
