@@ -21,6 +21,13 @@ export type CommissionBillingRecord = {
     TTL_Core__City__c?: string | null;
     TTL_Core__State__c?: string | null;
     TTL_Core__Zip_Code__c?: string | null;
+    TTL_Core__Property__r?: {
+      Name?: string | null;
+      TTL_Core__Address__c?: string | null;
+      TTL_Core__City__c?: string | null;
+      TTL_Core__State__c?: string | null;
+      TTL_Core__Postal_Zip_Code__c?: string | null;
+    } | null;
     TTL_Core__Space_Unit_Name__c?: string | null;
     Leased_Space_Amount__c?: number | null;
     TTL_Core__Lease_Structure__c?: string | null;
@@ -62,6 +69,11 @@ SELECT
   Deal__r.TTL_Core__City__c,
   Deal__r.TTL_Core__State__c,
   Deal__r.TTL_Core__Zip_Code__c,
+  Deal__r.TTL_Core__Property__r.Name,
+  Deal__r.TTL_Core__Property__r.TTL_Core__Address__c,
+  Deal__r.TTL_Core__Property__r.TTL_Core__City__c,
+  Deal__r.TTL_Core__Property__r.TTL_Core__State__c,
+  Deal__r.TTL_Core__Property__r.TTL_Core__Postal_Zip_Code__c,
   Deal__r.TTL_Core__Space_Unit_Name__c,
   Deal__r.Leased_Space_Amount__c,
   Deal__r.TTL_Core__Lease_Structure__c,
@@ -309,12 +321,19 @@ export function mapRecordToLeaseInvoice(
     representationType: expandRepAbbreviation(
       deal?.TTL_Core__RecordType_Name__c
     ),
-    propertyAddress: formatPropertyAddress(
-      deal?.TTL_Core__Address_Line_1__c,
-      deal?.TTL_Core__City__c,
-      deal?.TTL_Core__State__c,
-      deal?.TTL_Core__Zip_Code__c
-    ),
+    propertyAddress:
+      formatPropertyAddress(
+        deal?.TTL_Core__Property__r?.TTL_Core__Address__c,
+        deal?.TTL_Core__Property__r?.TTL_Core__City__c,
+        deal?.TTL_Core__Property__r?.TTL_Core__State__c,
+        deal?.TTL_Core__Property__r?.TTL_Core__Postal_Zip_Code__c
+      ) ||
+      formatPropertyAddress(
+        deal?.TTL_Core__Address_Line_1__c,
+        deal?.TTL_Core__City__c,
+        deal?.TTL_Core__State__c,
+        deal?.TTL_Core__Zip_Code__c
+      ),
     unit: deal?.TTL_Core__Space_Unit_Name__c ?? "",
     squareFootage: formatNumber(deal?.Leased_Space_Amount__c),
     acreage: "",
