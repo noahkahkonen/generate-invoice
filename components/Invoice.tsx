@@ -281,18 +281,20 @@ export function Invoice({
               >
                 Billed For
               </div>
-              <div
-                style={{
-                  fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: "#245535",
-                  textTransform: "uppercase",
-                  marginBottom: "clamp(3px, 0.4vh, 6px)",
-                }}
-              >
-                {representationType}
-              </div>
+              {isFilled(representationType) ? (
+                <div
+                  style={{
+                    fontSize: "clamp(10px, 0.7vh + 0.4rem, 12px)",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    color: "#245535",
+                    textTransform: "uppercase",
+                    marginBottom: "clamp(3px, 0.4vh, 6px)",
+                  }}
+                >
+                  {representationType}
+                </div>
+              ) : null}
               <div
                 style={{
                   fontSize: bodySize,

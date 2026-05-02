@@ -16,6 +16,7 @@ export type CommissionBillingRecord = {
   QR_Code_URL__c?: string | null;
   Deal__r?: {
     Name?: string | null;
+    TTL_Core__RecordType_Name__c?: string | null;
     TTL_Core__Address_Line_1__c?: string | null;
     TTL_Core__City__c?: string | null;
     TTL_Core__State__c?: string | null;
@@ -56,6 +57,7 @@ SELECT
   Invoice_Description__c, Bill_To_Email__c, Client_Email__c,
   Payment_URL__c, QR_Code_URL__c,
   Deal__r.Name,
+  Deal__r.TTL_Core__RecordType_Name__c,
   Deal__r.TTL_Core__Address_Line_1__c,
   Deal__r.TTL_Core__City__c,
   Deal__r.TTL_Core__State__c,
@@ -299,7 +301,7 @@ export function mapRecordToLeaseInvoice(
     agentTitle: HARDCODED_AGENT.title,
     agentPhoneLine: HARDCODED_AGENT.phone,
     agentEmail: HARDCODED_AGENT.email,
-    representationType: "",
+    representationType: deal?.TTL_Core__RecordType_Name__c ?? "",
     propertyAddress: formatPropertyAddress(
       deal?.TTL_Core__Address_Line_1__c,
       deal?.TTL_Core__City__c,
