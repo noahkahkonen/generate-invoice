@@ -8,6 +8,7 @@ export type CommissionBillingRecord = {
   CreatedDate?: string | null;
   Billing_Type__c?: string | null;
   Commission_Rate__c?: number | null;
+  Base_Amount_Auto__c?: number | null;
   Invoice_Amount__c?: number | null;
   Invoice_Description__c?: string | null;
   Bill_To_Email__c?: string | null;
@@ -92,6 +93,7 @@ SELECT
   Id, Name, CreatedDate,
   Billing_Type__c,
   Commission_Rate__c,
+  Base_Amount_Auto__c,
   Invoice_Amount__c,
   Invoice_Description__c, Bill_To_Email__c, Client_Email__c,
   Payment_URL__c, QR_Code_URL__c,
@@ -456,19 +458,7 @@ export function mapRecordToLeaseInvoice(
     tenantContact: tenantContactObj?.Name ?? "",
     tenantPhone: tenantContactObj?.Phone ?? "",
     tenantEmail: tenantContactObj?.Email ?? "",
-    totalDeal: (() => {
-      const fromField =
-        deal?.Total_Initial_Base_Rent__c ??
-        deal?.Total_Initial_Lease_Amount__c;
-      if (fromField) return formatUsd(fromField);
-      // Last-resort: derive total deal value from commission and rate.
-      const commission = rec.Invoice_Amount__c;
-      const rate = rec.Commission_Rate__c;
-      if (commission && rate) {
-        return formatUsd(commission / (rate / 100));
-      }
-      return "";
-    })(),
+    totalDeal: formatUsd(rec.Base_Amount_Auto__c),
     rate: formatPercent(rec.Commission_Rate__c),
     leaseType: deal?.TTL_Core__Lease_Structure__c ?? "",
     term,
