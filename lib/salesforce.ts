@@ -127,6 +127,20 @@ export function isFlatFeeBillingType(value: string | null | undefined): boolean 
   );
 }
 
+function cleanDescription(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?[a-z][^>]*>/gi, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -209,7 +223,7 @@ export function mapRecordToLeaseInvoice(
     agentPhoneLine: agent?.Phone ?? "",
     agentEmail: agent?.Email ?? "",
     representationType: "",
-    propertyAddress: rec.Invoice_Description__c ?? "",
+    propertyAddress: cleanDescription(rec.Invoice_Description__c),
     unit: "",
     squareFootage: "",
     acreage: "",
@@ -259,7 +273,7 @@ export function mapRecordToFixedFeeInvoice(
     amountDisplay: formatUsd(rec.Invoice_Amount__c),
     due: formatDate(rec.CreatedDate),
     dealName: deal?.Name ?? "",
-    description: rec.Invoice_Description__c ?? null,
+    description: cleanDescription(rec.Invoice_Description__c) || null,
     billedToName: company || contactName,
     billedToLine2:
       company && contactName && company !== contactName ? contactName : "",

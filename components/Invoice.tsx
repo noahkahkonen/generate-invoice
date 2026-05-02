@@ -1,5 +1,22 @@
 import Image from "next/image";
+import { Fragment, type ReactNode } from "react";
 import { blockPad, bodyLine, bodySize, padH, padV } from "./invoiceTokens";
+
+const isFilled = (s?: string | null): s is string =>
+  !!(s && s.trim() !== "");
+
+function joinLines(parts: ReactNode[]): ReactNode {
+  const filled = parts.filter(
+    (p) => p !== null && p !== undefined && p !== ""
+  );
+  if (filled.length === 0) return null;
+  return filled.map((node, i) => (
+    <Fragment key={i}>
+      {i > 0 ? <br /> : null}
+      {node}
+    </Fragment>
+  ));
+}
 
 export type InvoiceProps = {
   id: string;
@@ -192,13 +209,12 @@ export function Invoice({
                   color: "#333",
                 }}
               >
-                {billedToName}
-                <br />
-                {billedToLine2}
-                <br />
-                {billedToLine3}
-                <br />
-                {billedToEmail}
+                {joinLines([
+                  isFilled(billedToName) ? billedToName : null,
+                  isFilled(billedToLine2) ? billedToLine2 : null,
+                  isFilled(billedToLine3) ? billedToLine3 : null,
+                  isFilled(billedToEmail) ? billedToEmail : null,
+                ])}
               </div>
             </div>
             <div
@@ -227,13 +243,12 @@ export function Invoice({
                   color: "#333",
                 }}
               >
-                <strong>{agentName}</strong>
-                <br />
-                {agentTitle}
-                <br />
-                {agentPhoneLine}
-                <br />
-                {agentEmail}
+                {joinLines([
+                  isFilled(agentName) ? <strong>{agentName}</strong> : null,
+                  isFilled(agentTitle) ? agentTitle : null,
+                  isFilled(agentPhoneLine) ? agentPhoneLine : null,
+                  isFilled(agentEmail) ? agentEmail : null,
+                ])}
               </div>
             </div>
           </div>
