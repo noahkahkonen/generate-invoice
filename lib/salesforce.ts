@@ -48,6 +48,7 @@ export type CommissionBillingRecord = {
     TTL_Core__Lease_Term_Months_formula__c?: number | null;
     Lease_Years__c?: number | null;
     TTL_Core__Client_Expectations_Term_Months__c?: number | string | null;
+    Total_Initial_Base_Rent__c?: number | null;
     TTL_Core__Lease_Commencement__c?: string | null;
     Rent_Commencement_Date_c__c?: string | null;
     TTL_Core__Landlord_Company_Name__c?: string | null;
@@ -120,6 +121,7 @@ SELECT
   Deal__r.TTL_Core__Lease_Term_Months_formula__c,
   Deal__r.Lease_Years__c,
   Deal__r.TTL_Core__Client_Expectations_Term_Months__c,
+  Deal__r.Total_Initial_Base_Rent__c,
   Deal__r.TTL_Core__Lease_Commencement__c,
   Deal__r.Rent_Commencement_Date_c__c,
   Deal__r.TTL_Core__Landlord_Company_Name__c,
@@ -452,7 +454,7 @@ export function mapRecordToLeaseInvoice(
     tenantContact: tenantContactObj?.Name ?? "",
     tenantPhone: tenantContactObj?.Phone ?? "",
     tenantEmail: tenantContactObj?.Email ?? "",
-    totalDeal: formatUsd(rec.Invoice_Amount__c),
+    totalDeal: formatUsd(deal?.Total_Initial_Base_Rent__c),
     rate: formatPercent(rec.Commission_Rate__c),
     leaseType: deal?.TTL_Core__Lease_Structure__c ?? "",
     term,
