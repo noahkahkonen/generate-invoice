@@ -27,6 +27,7 @@ export type CommissionBillingRecord = {
       TTL_Core__City__c?: string | null;
       TTL_Core__State__c?: string | null;
       TTL_Core__Postal_Zip_Code__c?: string | null;
+      TTL_Core__Land_Size_Acres__c?: number | null;
     } | null;
     TTL_Core__Space_Unit_Name__c?: string | null;
     TTL_Core__Unit__r?: { Name?: string | null } | null;
@@ -75,6 +76,7 @@ SELECT
   Deal__r.TTL_Core__Property__r.TTL_Core__City__c,
   Deal__r.TTL_Core__Property__r.TTL_Core__State__c,
   Deal__r.TTL_Core__Property__r.TTL_Core__Postal_Zip_Code__c,
+  Deal__r.TTL_Core__Property__r.TTL_Core__Land_Size_Acres__c,
   Deal__r.TTL_Core__Space_Unit_Name__c,
   Deal__r.TTL_Core__Unit__r.Name,
   Deal__r.Leased_Space_Amount__c,
@@ -213,6 +215,14 @@ function formatNumber(n: number | null | undefined): string {
   return new Intl.NumberFormat("en-US").format(n);
 }
 
+function formatAcres(n: number | null | undefined): string {
+  if (n == null || Number.isNaN(n)) return "";
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
 function formatPropertyAddress(
   line1: string | null | undefined,
   city: string | null | undefined,
@@ -341,7 +351,9 @@ export function mapRecordToLeaseInvoice(
       deal?.TTL_Core__Space_Unit_Name__c ??
       "",
     squareFootage: formatNumber(deal?.Leased_Space_Amount__c),
-    acreage: "",
+    acreage: formatAcres(
+      deal?.TTL_Core__Property__r?.TTL_Core__Land_Size_Acres__c
+    ),
     tenantName: tenantCompany,
     tenantContact: tenantContactObj?.Name ?? "",
     tenantPhone: tenantContactObj?.Phone ?? "",
