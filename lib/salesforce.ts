@@ -191,6 +191,13 @@ export type LeaseInvoiceMapping = {
   qrUrl?: string;
 };
 
+const HARDCODED_AGENT = {
+  name: "Noah Kahkonen",
+  title: "Senior Advisor",
+  phone: "614-559-3350 Ext. 117",
+  email: "nkahkonen@bestcorporaterealestate.com",
+};
+
 export function mapRecordToLeaseInvoice(
   rec: CommissionBillingRecord
 ): LeaseInvoiceMapping {
@@ -198,7 +205,6 @@ export function mapRecordToLeaseInvoice(
   const company = deal?.TTL_Core__Client_Company__r?.Name ?? "";
   const contactName = deal?.TTL_Core__Client_Contact__r?.Name ?? "";
   const contactEmail = deal?.TTL_Core__Client_Contact__r?.Email ?? "";
-  const agent = deal?.Agent_Contact__r ?? null;
 
   const rentCommencement =
     formatDate(deal?.Rent_Commencement_Date_c__c) ||
@@ -218,10 +224,10 @@ export function mapRecordToLeaseInvoice(
     billedToLine3: "",
     billedToEmail:
       rec.Bill_To_Email__c ?? rec.Client_Email__c ?? contactEmail ?? "",
-    agentName: agent?.Name ?? "",
-    agentTitle: "",
-    agentPhoneLine: agent?.Phone ?? "",
-    agentEmail: agent?.Email ?? "",
+    agentName: HARDCODED_AGENT.name,
+    agentTitle: HARDCODED_AGENT.title,
+    agentPhoneLine: HARDCODED_AGENT.phone,
+    agentEmail: HARDCODED_AGENT.email,
     representationType: "",
     propertyAddress: cleanDescription(rec.Invoice_Description__c),
     unit: "",
@@ -266,7 +272,6 @@ export function mapRecordToFixedFeeInvoice(
   const company = deal?.TTL_Core__Client_Company__r?.Name ?? "";
   const contactName = deal?.TTL_Core__Client_Contact__r?.Name ?? "";
   const contactEmail = deal?.TTL_Core__Client_Contact__r?.Email ?? "";
-  const agent = deal?.Agent_Contact__r ?? null;
 
   return {
     id: rec.Name ?? rec.Id,
@@ -280,10 +285,10 @@ export function mapRecordToFixedFeeInvoice(
     billedToLine3: "",
     billedToEmail:
       rec.Bill_To_Email__c ?? rec.Client_Email__c ?? contactEmail ?? "",
-    agentName: agent?.Name ?? "",
-    agentTitle: "",
-    agentPhoneLine: agent?.Phone ?? "",
-    agentEmail: agent?.Email ?? "",
+    agentName: HARDCODED_AGENT.name,
+    agentTitle: HARDCODED_AGENT.title,
+    agentPhoneLine: HARDCODED_AGENT.phone,
+    agentEmail: HARDCODED_AGENT.email,
     payUrl: rec.Payment_URL__c ?? undefined,
     qrUrl: rec.QR_Code_URL__c ?? undefined,
   };
