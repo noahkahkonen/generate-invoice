@@ -161,6 +161,19 @@ function formatPercent(n: number | null | undefined): string {
   return `${n}%`;
 }
 
+function resolveQrUrl(
+  qrUrl: string | null | undefined,
+  payUrl: string | null | undefined
+): string | undefined {
+  if (qrUrl && qrUrl.trim() !== "") return qrUrl;
+  if (payUrl && payUrl.trim() !== "") {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${encodeURIComponent(
+      payUrl
+    )}`;
+  }
+  return undefined;
+}
+
 export type LeaseInvoiceMapping = {
   id: string;
   due: string;
@@ -243,7 +256,7 @@ export function mapRecordToLeaseInvoice(
     term,
     rentCommencement,
     payUrl: rec.Payment_URL__c ?? undefined,
-    qrUrl: rec.QR_Code_URL__c ?? undefined,
+    qrUrl: resolveQrUrl(rec.QR_Code_URL__c, rec.Payment_URL__c),
   };
 }
 
@@ -290,6 +303,6 @@ export function mapRecordToFixedFeeInvoice(
     agentPhoneLine: HARDCODED_AGENT.phone,
     agentEmail: HARDCODED_AGENT.email,
     payUrl: rec.Payment_URL__c ?? undefined,
-    qrUrl: rec.QR_Code_URL__c ?? undefined,
+    qrUrl: resolveQrUrl(rec.QR_Code_URL__c, rec.Payment_URL__c),
   };
 }
