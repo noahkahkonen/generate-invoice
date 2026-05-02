@@ -304,69 +304,41 @@ export function Invoice({
                 }}
               >
                 {propertyAddress}
-                {unit ? (
-                  <>
-                    <br />
-                    Unit: {unit}
-                  </>
-                ) : null}
-                {squareFootage ? (
-                  <>
-                    <br />
-                    Square Footage: {squareFootage}
-                  </>
-                ) : null}
-                {acreage ? (
-                  <>
-                    <br />
-                    Acreage: {acreage}
-                  </>
-                ) : null}
+                <br />
+                Unit: {unit || "N/A"}
+                <br />
+                Square Footage: {squareFootage || "N/A"}
+                <br />
+                Acreage: {acreage || "N/A"}
               </div>
-              {(tenantName || tenantContact || tenantPhone || tenantEmail) && (
-                <>
-                  <div
-                    style={{
-                      fontSize: "clamp(9px, 0.6vh + 0.3rem, 11px)",
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      color: "#245535",
-                      textTransform: "uppercase",
-                      marginBottom: "clamp(2px, 0.3vh, 4px)",
-                      marginTop: "clamp(6px, 0.7vh, 10px)",
-                    }}
-                  >
-                    Tenant
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
-                      color: "#444",
-                      lineHeight: 1.45,
-                    }}
-                  >
-                    {tenantName ? <strong>{tenantName}</strong> : null}
-                    {tenantContact ? (
-                      <>
-                        <br />
-                        Contact: {tenantContact}
-                      </>
-                    ) : null}
-                    {tenantPhone ? (
-                      <>
-                        <br />
-                        {tenantPhone}
-                      </>
-                    ) : null}
-                    {tenantEmail ? (
-                      <>
-                        <br />
-                        {tenantEmail}
-                      </>
-                    ) : null}
-                  </div>
-                </>
-              )}
+              <div
+                style={{
+                  fontSize: "clamp(9px, 0.6vh + 0.3rem, 11px)",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: "#245535",
+                  textTransform: "uppercase",
+                  marginBottom: "clamp(2px, 0.3vh, 4px)",
+                  marginTop: "clamp(6px, 0.7vh, 10px)",
+                }}
+              >
+                Tenant
+              </div>
+              <div
+                style={{
+                  fontSize: "clamp(10px, 0.7vh + 0.3rem, 12px)",
+                  color: "#444",
+                  lineHeight: 1.45,
+                }}
+              >
+                <strong>{tenantName || "Not provided"}</strong>
+                <br />
+                Contact: {tenantContact || "Not provided"}
+                <br />
+                {tenantPhone || "Not provided"}
+                <br />
+                {tenantEmail || "Not provided"}
+              </div>
             </div>
             <div
               style={{

@@ -350,10 +350,12 @@ export function mapRecordToLeaseInvoice(
       deal?.TTL_Core__Unit__r?.Name ??
       deal?.TTL_Core__Space_Unit_Name__c ??
       "",
-    squareFootage: formatNumber(deal?.Leased_Space_Amount__c),
-    acreage: formatAcres(
-      deal?.TTL_Core__Property__r?.TTL_Core__Land_Size_Acres__c
-    ),
+    squareFootage: deal?.Leased_Space_Amount__c
+      ? formatNumber(deal.Leased_Space_Amount__c)
+      : "",
+    acreage: deal?.TTL_Core__Property__r?.TTL_Core__Land_Size_Acres__c
+      ? formatAcres(deal.TTL_Core__Property__r.TTL_Core__Land_Size_Acres__c)
+      : "",
     tenantName: tenantCompany,
     tenantContact: tenantContactObj?.Name ?? "",
     tenantPhone: tenantContactObj?.Phone ?? "",
