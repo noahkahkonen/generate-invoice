@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { blockPad, bodyLine, bodySize, padH, padV } from "./invoiceTokens";
 
 export type FixedFeeBpoInvoiceProps = {
@@ -20,18 +20,40 @@ export type FixedFeeBpoInvoiceProps = {
   qrUrl?: string;
 };
 
-const isFilled = (s?: string | null): s is string => !!(s && s.trim() !== "");
+const filled = (s?: string | null): s is string => !!s && s.trim() !== "";
 
-function joinLines(parts: ReactNode[]): ReactNode {
-  const filled = parts.filter((p) => p !== null && p !== undefined && p !== "");
-  if (filled.length === 0) return null;
-  return filled.map((node, i) => (
+function multiline(parts: ReactNode[]): ReactNode | null {
+  const kept = parts.filter((p) => p !== null && p !== undefined && p !== "");
+  if (kept.length === 0) return null;
+  return kept.map((node, i) => (
     <Fragment key={i}>
       {i > 0 ? <br /> : null}
       {node}
     </Fragment>
   ));
 }
+
+const sectionHeader: CSSProperties = {
+  fontSize: bodySize,
+  fontWeight: 800,
+  color: "#245535",
+  letterSpacing: 1.5,
+  textTransform: "uppercase",
+  marginBottom: "clamp(6px, 0.8vh, 12px)",
+};
+
+const partyBody: CSSProperties = {
+  fontSize: bodySize,
+  lineHeight: bodyLine,
+  color: "#333",
+};
+
+const primaryBody: CSSProperties = {
+  fontSize: "clamp(14px, 1.1vh + 0.5rem, 18px)",
+  color: "#222",
+  lineHeight: bodyLine,
+  fontWeight: 600,
+};
 
 export function FixedFeeBpoInvoice({
   id,
@@ -50,32 +72,34 @@ export function FixedFeeBpoInvoice({
   payUrl,
   qrUrl,
 }: FixedFeeBpoInvoiceProps) {
-  const billedToContent = joinLines([
-    isFilled(billedToName) ? billedToName : null,
-    isFilled(billedToLine2) ? billedToLine2 : null,
-    isFilled(billedToLine3) ? billedToLine3 : null,
-    isFilled(billedToEmail) ? billedToEmail : null,
+  const billedTo = multiline([
+    filled(billedToName) ? billedToName : null,
+    filled(billedToLine2) ? billedToLine2 : null,
+    filled(billedToLine3) ? billedToLine3 : null,
+    filled(billedToEmail) ? billedToEmail : null,
   ]);
-  const agentContent = joinLines([
-    isFilled(agentName) ? <strong>{agentName}</strong> : null,
-    isFilled(agentTitle) ? agentTitle : null,
-    isFilled(agentPhoneLine) ? agentPhoneLine : null,
-    isFilled(agentEmail) ? agentEmail : null,
+  const agent = multiline([
+    filled(agentName) ? <strong>{agentName}</strong> : null,
+    filled(agentTitle) ? agentTitle : null,
+    filled(agentPhoneLine) ? agentPhoneLine : null,
+    filled(agentEmail) ? agentEmail : null,
   ]);
 
-  const showBilledTo = billedToContent !== null;
-  const showAgent = agentContent !== null;
-  const showPartiesRow = showBilledTo || showAgent;
+  const hasBilledTo = billedTo !== null;
+  const hasAgent = agent !== null;
+  const hasPartiesRow = hasBilledTo || hasAgent;
 
-  const showDeal = isFilled(dealName) || isFilled(description);
-  const showAmount = isFilled(amountDisplay);
-  const showDealRow = showDeal || showAmount;
+  const hasDealName = filled(dealName);
+  const hasDescription = filled(description);
+  const hasDeal = hasDealName || hasDescription;
+  const hasAmount = filled(amountDisplay);
+  const hasDealRow = hasDeal || hasAmount;
 
-  const showPayLink = isFilled(payUrl);
-  const showQr = isFilled(qrUrl);
-  const showPayColumn = showPayLink || showQr;
+  const hasPayLink = filled(payUrl);
+  const hasQr = filled(qrUrl);
+  const hasPayColumn = hasPayLink || hasQr;
 
-  const showHeaderSubtitle = isFilled(id) || isFilled(due);
+  const hasHeaderSubtitle = filled(id) || filled(due);
 
   return (
     <div
@@ -134,7 +158,7 @@ export function FixedFeeBpoInvoice({
             >
               INVOICE
             </div>
-            {showHeaderSubtitle ? (
+            {hasHeaderSubtitle ? (
               <div
                 style={{
                   fontSize: "clamp(11px, 1.05vh + 0.3rem, 14px)",
@@ -143,9 +167,9 @@ export function FixedFeeBpoInvoice({
                   marginTop: 4,
                 }}
               >
-                {isFilled(id) ? <>#{id}</> : null}
-                {isFilled(id) && isFilled(due) ? <br /> : null}
-                {isFilled(due) ? <>Due: {due}</> : null}
+                {filled(id) ? <>#{id}</> : null}
+                {filled(id) && filled(due) ? <br /> : null}
+                {filled(due) ? <>Due: {due}</> : null}
               </div>
             ) : null}
           </div>
@@ -169,7 +193,7 @@ export function FixedFeeBpoInvoice({
               display: "table-cell",
               verticalAlign: "middle",
               textAlign: "center",
-              padding: `${"clamp(8px, 1vh, 14px)"} ${padH}`,
+              padding: `clamp(8px, 1vh, 14px) ${padH}`,
             }}
           >
             4608 Sawmill Road, Columbus, OH 43220 | 614-559-3350 |
@@ -178,7 +202,7 @@ export function FixedFeeBpoInvoice({
         </div>
 
         <div className="invoice-page-body">
-          {showPartiesRow ? (
+          {hasPartiesRow ? (
             <div
               style={{
                 display: "flex",
@@ -187,68 +211,30 @@ export function FixedFeeBpoInvoice({
                 borderBottom: "1px solid #e0e0d8",
               }}
             >
-              {showBilledTo ? (
+              {hasBilledTo ? (
                 <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: bodySize,
-                      fontWeight: 800,
-                      color: "#245535",
-                      letterSpacing: 1.5,
-                      textTransform: "uppercase",
-                      marginBottom: "clamp(6px, 0.8vh, 12px)",
-                    }}
-                  >
-                    Billed To
-                  </div>
-                  <div
-                    style={{
-                      fontSize: bodySize,
-                      lineHeight: bodyLine,
-                      color: "#333",
-                    }}
-                  >
-                    {billedToContent}
-                  </div>
+                  <div style={sectionHeader}>Billed To</div>
+                  <div style={partyBody}>{billedTo}</div>
                 </div>
               ) : null}
-              {showAgent ? (
+              {hasAgent ? (
                 <div
                   style={{
                     flex: 1,
-                    borderLeft: showBilledTo ? "1.5px solid #d0d0c8" : "none",
-                    paddingLeft: showBilledTo
+                    borderLeft: hasBilledTo ? "1.5px solid #d0d0c8" : "none",
+                    paddingLeft: hasBilledTo
                       ? "clamp(14px, 1.5vw, 24px)"
                       : 0,
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: bodySize,
-                      fontWeight: 800,
-                      color: "#245535",
-                      letterSpacing: 1.5,
-                      textTransform: "uppercase",
-                      marginBottom: "clamp(6px, 0.8vh, 12px)",
-                    }}
-                  >
-                    Agent
-                  </div>
-                  <div
-                    style={{
-                      fontSize: bodySize,
-                      lineHeight: bodyLine,
-                      color: "#333",
-                    }}
-                  >
-                    {agentContent}
-                  </div>
+                  <div style={sectionHeader}>Agent</div>
+                  <div style={partyBody}>{agent}</div>
                 </div>
               ) : null}
             </div>
           ) : null}
 
-          {showDealRow ? (
+          {hasDealRow ? (
             <div
               style={{
                 display: "flex",
@@ -259,7 +245,7 @@ export function FixedFeeBpoInvoice({
                 flex: 1,
               }}
             >
-              {showDeal ? (
+              {hasDeal ? (
                 <div
                   style={{
                     flex: "1 1 0%",
@@ -269,40 +255,21 @@ export function FixedFeeBpoInvoice({
                 >
                   <div
                     style={{
-                      fontSize: bodySize,
-                      fontWeight: 800,
-                      color: "#245535",
-                      letterSpacing: 1.5,
-                      textTransform: "uppercase",
+                      ...sectionHeader,
                       marginBottom: "clamp(10px, 1.1vh, 16px)",
                     }}
                   >
                     Billed for
                   </div>
-                  {isFilled(dealName) ? (
-                    <div
-                      style={{
-                        fontSize: "clamp(14px, 1.1vh + 0.5rem, 18px)",
-                        color: "#222",
-                        lineHeight: bodyLine,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {dealName}
-                    </div>
+                  {hasDealName ? (
+                    <div style={primaryBody}>{dealName}</div>
                   ) : null}
-                  {isFilled(description) ? (
+                  {hasDescription && hasDealName ? (
                     <div
                       style={{
-                        marginTop: isFilled(dealName)
-                          ? "clamp(8px, 0.9vh, 12px)"
-                          : 0,
-                        paddingTop: isFilled(dealName)
-                          ? "clamp(6px, 0.6vh, 10px)"
-                          : 0,
-                        borderTop: isFilled(dealName)
-                          ? "1px solid #e8e8e0"
-                          : "none",
+                        marginTop: "clamp(8px, 0.9vh, 12px)",
+                        paddingTop: "clamp(6px, 0.6vh, 10px)",
+                        borderTop: "1px solid #e8e8e0",
                       }}
                     >
                       <div
@@ -329,16 +296,21 @@ export function FixedFeeBpoInvoice({
                       </div>
                     </div>
                   ) : null}
+                  {hasDescription && !hasDealName ? (
+                    <div style={{ ...primaryBody, whiteSpace: "pre-line" }}>
+                      {description!.trim()}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
-              {showAmount ? (
+              {hasAmount ? (
                 <div
                   style={{
-                    flex: showDeal ? "0 0 42%" : "1 1 100%",
+                    flex: hasDeal ? "0 0 42%" : "1 1 100%",
                     minWidth: 0,
-                    maxWidth: showDeal ? "min(100%, 50%)" : "100%",
+                    maxWidth: hasDeal ? "min(100%, 50%)" : "100%",
                     boxSizing: "border-box",
-                    paddingLeft: showDeal ? "clamp(4px, 0.8vw, 10px)" : 0,
+                    paddingLeft: hasDeal ? "clamp(4px, 0.8vw, 10px)" : 0,
                   }}
                 >
                   <div
@@ -416,7 +388,7 @@ export function FixedFeeBpoInvoice({
                 alignItems: "flex-start",
               }}
             >
-              {showQr ? (
+              {hasQr ? (
                 <Image
                   src={qrUrl!}
                   alt="Pay invoice QR code"
@@ -435,7 +407,7 @@ export function FixedFeeBpoInvoice({
                 />
               ) : null}
               <div style={{ flex: 1, minWidth: 0 }}>
-                {showPayLink ? (
+                {hasPayLink ? (
                   <a
                     href={payUrl}
                     style={{
@@ -457,9 +429,9 @@ export function FixedFeeBpoInvoice({
                 ) : null}
                 <div
                   style={{
-                    marginTop: showPayColumn ? "clamp(8px, 0.9vh, 14px)" : 0,
-                    borderTop: showPayColumn ? "1px solid #e0e0d8" : "none",
-                    paddingTop: showPayColumn ? "clamp(8px, 0.9vh, 12px)" : 0,
+                    marginTop: hasPayColumn ? "clamp(8px, 0.9vh, 14px)" : 0,
+                    borderTop: hasPayColumn ? "1px solid #e0e0d8" : "none",
+                    paddingTop: hasPayColumn ? "clamp(8px, 0.9vh, 12px)" : 0,
                     fontSize: "clamp(11px, 0.85vh + 0.35rem, 12px)",
                     color: "#555",
                     lineHeight: 1.7,
