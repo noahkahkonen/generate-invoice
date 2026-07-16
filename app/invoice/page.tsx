@@ -5,7 +5,7 @@ import { firstString, formatUsdFromParam } from "@/lib/invoiceQuery";
 import {
   SF_ID_REGEX,
   fetchCommissionBillingRecord,
-  isFlatFeeBillingType,
+  isFlatFeeCommissionType,
   mapRecordToFixedFeeInvoice,
   mapRecordToLeaseInvoice,
 } from "@/lib/salesforce";
@@ -120,7 +120,7 @@ export default async function InvoicePage({
       );
     }
 
-    const useFlatFee = isFlatFeeBillingType(record.Billing_Type__c);
+    const useFlatFee = isFlatFeeCommissionType(record.Commission_Type__c);
     if (useFlatFee) {
       const props = mapRecordToFixedFeeInvoice(record);
       return (

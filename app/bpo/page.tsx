@@ -35,6 +35,8 @@ export default async function BpoPage({
     firstString(params.agentPhone) ?? "614-559-3350 Ext. 117";
   const agentEmail =
     firstString(params.agentEmail) ?? "nkahkonen@bestcorporaterealestate.com";
+  const payUrl = firstString(params.payUrl) ?? "";
+  const qrUrl = firstString(params.qrUrl) ?? "";
 
   return (
     <div>
@@ -68,6 +70,8 @@ export default async function BpoPage({
           agentTitle={agentTitle}
           agentPhoneLine={agentPhoneLine}
           agentEmail={agentEmail}
+          payUrl={payUrl}
+          qrUrl={qrUrl}
         />
       </InvoicePdfFrame>
     </div>

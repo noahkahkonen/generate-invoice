@@ -7,6 +7,7 @@ export type CommissionBillingRecord = {
   Name?: string | null;
   CreatedDate?: string | null;
   Billing_Type__c?: string | null;
+  Commission_Type__c?: string | null;
   Commission_Rate__c?: number | null;
   Base_Amount_Auto__c?: number | null;
   Invoice_Amount__c?: number | null;
@@ -85,6 +86,19 @@ export type CommissionBillingRecord = {
       Name?: string | null;
       Email?: string | null;
     } | null;
+    TTL_Core__Seller_Company_Name__c?: string | null;
+    TTL_Core__Seller_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
+    TTL_Core__Buyer_Company_Name__c?: string | null;
+    TTL_Core__Buyer_Contact__r?: {
+      Name?: string | null;
+      Email?: string | null;
+      Phone?: string | null;
+    } | null;
+    Stripe_Payment_URL__c?: string | null;
   } | null;
 };
 
@@ -92,6 +106,7 @@ const SOQL = `
 SELECT
   Id, Name, CreatedDate,
   Billing_Type__c,
+  Commission_Type__c,
   Commission_Rate__c,
   Base_Amount_Auto__c,
   Invoice_Amount__c,
@@ -147,7 +162,16 @@ SELECT
   Deal__r.Agent_Contact__r.Phone,
   Deal__r.TTL_Core__Client_Company__r.Name,
   Deal__r.TTL_Core__Client_Contact__r.Name,
-  Deal__r.TTL_Core__Client_Contact__r.Email
+  Deal__r.TTL_Core__Client_Contact__r.Email,
+  Deal__r.TTL_Core__Seller_Company_Name__c,
+  Deal__r.TTL_Core__Seller_Contact__r.Name,
+  Deal__r.TTL_Core__Seller_Contact__r.Email,
+  Deal__r.TTL_Core__Seller_Contact__r.Phone,
+  Deal__r.TTL_Core__Buyer_Company_Name__c,
+  Deal__r.TTL_Core__Buyer_Contact__r.Name,
+  Deal__r.TTL_Core__Buyer_Contact__r.Email,
+  Deal__r.TTL_Core__Buyer_Contact__r.Phone,
+  Deal__r.Stripe_Payment_URL__c
 FROM Commission_Billing_Record__c
 WHERE Id = '{ID}'
 LIMIT 1
@@ -211,16 +235,12 @@ export async function fetchCommissionBillingRecord(
   return result.records?.[0] ?? null;
 }
 
-export function isFlatFeeBillingType(value: string | null | undefined): boolean {
+export function isFlatFeeCommissionType(
+  value: string | null | undefined
+): boolean {
   if (!value) return false;
   const v = value.toLowerCase().trim();
-  return (
-    v === "flat fee" ||
-    v === "flatfee" ||
-    v === "flat" ||
-    v === "bpo" ||
-    v.includes("flat")
-  );
+  return v === "flat fee" || v === "flatfee" || v === "flat" || v.includes("flat");
 }
 
 function cleanDescription(raw: string | null | undefined): string {
@@ -463,8 +483,11 @@ export function mapRecordToLeaseInvoice(
     leaseType: deal?.TTL_Core__Lease_Structure__c ?? "",
     term,
     rentCommencement,
-    payUrl: rec.Payment_URL__c ?? undefined,
-    qrUrl: resolveQrUrl(rec.QR_Code_URL__c, rec.Payment_URL__c),
+    payUrl: rec.Payment_URL__c ?? deal?.Stripe_Payment_URL__c ?? undefined,
+    qrUrl: resolveQrUrl(
+      rec.QR_Code_URL__c,
+      rec.Payment_URL__c ?? deal?.Stripe_Payment_URL__c
+    ),
   };
 }
 
@@ -486,13 +509,60 @@ export type FixedFeeInvoiceMapping = {
   qrUrl?: string;
 };
 
+/**
+ * The "client" on a deal may live in the generic Client fields or in the
+ * record-type-specific party fields (Seller Rep deals fill Seller_Contact,
+ * Landlord Rep deals fill Landlord_Contact, etc.). Prefer the generic
+ * fields, then fall back by record type.
+ */
+function resolveBilledParty(deal: CommissionBillingRecord["Deal__r"]): {
+  company: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+} {
+  const genericCompany = deal?.TTL_Core__Client_Company__r?.Name ?? "";
+  const genericContact = deal?.TTL_Core__Client_Contact__r ?? null;
+  if (genericCompany || genericContact?.Name) {
+    return {
+      company: genericCompany,
+      contactName: genericContact?.Name ?? "",
+      contactEmail: genericContact?.Email ?? "",
+      contactPhone: "",
+    };
+  }
+
+  const rt = (deal?.TTL_Core__RecordType_Name__c ?? "").toLowerCase();
+  let company = "";
+  let contact: { Name?: string | null; Email?: string | null; Phone?: string | null } | null = null;
+  if (rt.includes("seller")) {
+    company = deal?.TTL_Core__Seller_Company_Name__c ?? "";
+    contact = deal?.TTL_Core__Seller_Contact__r ?? null;
+  } else if (rt.includes("landlord")) {
+    company = deal?.TTL_Core__Landlord_Company_Name__c ?? "";
+    contact = deal?.TTL_Core__Landlord_Contact__r ?? deal?.Landlord_Contact__r ?? null;
+  } else if (rt.includes("buyer")) {
+    company = deal?.TTL_Core__Buyer_Company_Name__c ?? "";
+    contact = deal?.TTL_Core__Buyer_Contact__r ?? null;
+  } else if (rt.includes("tenant")) {
+    company = deal?.TTL_Core__Tenant_Company_Name__c ?? "";
+    contact = deal?.TTL_Core__Tenant_Contact__r ?? deal?.Tenant_Contact__r ?? null;
+  }
+  return {
+    company,
+    contactName: contact?.Name ?? "",
+    contactEmail: contact?.Email ?? "",
+    contactPhone: contact?.Phone ?? "",
+  };
+}
+
 export function mapRecordToFixedFeeInvoice(
   rec: CommissionBillingRecord
 ): FixedFeeInvoiceMapping {
   const deal = rec.Deal__r ?? null;
-  const company = deal?.TTL_Core__Client_Company__r?.Name ?? "";
-  const contactName = deal?.TTL_Core__Client_Contact__r?.Name ?? "";
-  const contactEmail = deal?.TTL_Core__Client_Contact__r?.Email ?? "";
+  const { company, contactName, contactEmail, contactPhone } =
+    resolveBilledParty(deal);
+  const payUrl = rec.Payment_URL__c ?? deal?.Stripe_Payment_URL__c ?? undefined;
 
   return {
     id: rec.Name ?? rec.Id,
@@ -503,14 +573,14 @@ export function mapRecordToFixedFeeInvoice(
     billedToName: company || contactName,
     billedToLine2:
       company && contactName && company !== contactName ? contactName : "",
-    billedToLine3: "",
+    billedToLine3: contactPhone,
     billedToEmail:
       rec.Bill_To_Email__c ?? rec.Client_Email__c ?? contactEmail ?? "",
     agentName: HARDCODED_AGENT.name,
     agentTitle: HARDCODED_AGENT.title,
     agentPhoneLine: HARDCODED_AGENT.phone,
     agentEmail: HARDCODED_AGENT.email,
-    payUrl: rec.Payment_URL__c ?? undefined,
-    qrUrl: resolveQrUrl(rec.QR_Code_URL__c, rec.Payment_URL__c),
+    payUrl,
+    qrUrl: resolveQrUrl(rec.QR_Code_URL__c, payUrl),
   };
 }
