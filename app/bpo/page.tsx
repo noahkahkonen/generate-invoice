@@ -9,26 +9,34 @@ export default async function BpoPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = searchParams ? await searchParams : {};
-  const id = firstString(params.id) ?? "INV-SAMPLE";
-  const due = firstString(params.due) ?? "5/1/26";
-  const amountRaw = firstString(params.amount) ?? "450";
-  const amountDisplay = formatUsdFromParam(amountRaw, "$450.00");
+  // Sample data only when the page is opened bare (no query params at all).
+  // With real params, absent fields stay blank instead of showing sample text.
+  const isSample = Object.keys(params).length === 0;
+  const sample = (v: string) => (isSample ? v : "");
+  const id = firstString(params.id) ?? sample("INV-SAMPLE");
+  const due = firstString(params.due) ?? sample("5/1/26");
+  const amountRaw = firstString(params.amount) ?? (isSample ? "450" : "");
+  const amountDisplay = amountRaw
+    ? formatUsdFromParam(amountRaw, "")
+    : "";
   const dealName =
-    firstString(params.deal) ?? firstString(params.dealName) ?? "Sample deal name";
+    firstString(params.deal) ??
+    firstString(params.dealName) ??
+    sample("Sample deal name");
   const descriptionRaw =
     firstString(params.description) ?? firstString(params.desc) ?? null;
   const description =
     descriptionRaw == null
       ? null
       : descriptionRaw.split("|").map((s) => s.trim()).join("\n");
-  const billedToName = firstString(params.client) ?? "Valerie Tivin";
+  const billedToName = firstString(params.client) ?? sample("Valerie Tivin");
   const billedToLine2 =
-    firstString(params.org) ?? "Best Corporate Real Estate";
-  const billedToLine3 = firstString(params.billedPhone) ?? "614-559-3350";
+    firstString(params.org) ?? sample("Best Corporate Real Estate");
+  const billedToLine3 = firstString(params.billedPhone) ?? sample("614-559-3350");
   const billedToEmail =
     firstString(params.clientEmail) ??
     firstString(params.billedEmail) ??
-    "info@bestcorporaterealestate.com";
+    sample("info@bestcorporaterealestate.com");
   const agentName = firstString(params.agent) ?? "Noah Kahkonen";
   const agentTitle = firstString(params.title) ?? "Senior Advisor";
   const agentPhoneLine =
